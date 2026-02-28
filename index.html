@@ -1,259 +1,214 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CapitalX — SA Broker Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  :root {
-    --gold: #C9A84C;
-    --gold-light: #E8C97A;
-    --gold-dark: #9A7A2E;
-    --black: #0A0A0A;
-    --dark: #111318;
-    --card: #161A22;
-    --card2: #1C2130;
-    --border: #252B3A;
-    --text: #E8EAF0;
-    --muted: #6B7280;
-    --green: #22C55E;
-    --red: #EF4444;
-    --blue: #3B82F6;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--black); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; }
-  h1,h2,h3,h4 { font-family:'Syne',sans-serif; }
+:root {
+  --gold:#C9A84C;--gold-light:#E8C97A;--gold-dark:#9A7A2E;
+  --black:#0A0A0A;--dark:#111318;--card:#161A22;--card2:#1C2130;
+  --border:#252B3A;--text:#E8EAF0;--muted:#6B7280;
+  --green:#22C55E;--red:#EF4444;--blue:#3B82F6;
+}
+[data-theme="light"]{
+  --black:#F0F2F5;--dark:#FFFFFF;--card:#FFFFFF;--card2:#F8F9FB;
+  --border:#E2E8F0;--text:#1A202C;--muted:#64748B;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--black);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;transition:background 0.3s,color 0.3s;}
+h1,h2,h3,h4{font-family:'Syne',sans-serif;}
 
-  /* ===== LOGIN ===== */
-  #login-screen {
-    min-height:100vh; display:flex; align-items:center; justify-content:center;
-    background: radial-gradient(ellipse at 30% 20%, #1a1400 0%, var(--black) 60%);
-    position:relative; overflow:hidden;
-  }
-  #login-screen::before {
-    content:''; position:absolute; inset:0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C9A84C' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  }
-  .login-box {
-    background:var(--card); border:1px solid var(--border); border-radius:20px;
-    padding:48px 40px; width:100%; max-width:420px; position:relative; z-index:1;
-    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,168,76,0.1);
-  }
-  .login-logo { text-align:center; margin-bottom:36px; }
-  .login-logo h1 { font-size:2rem; color:var(--gold); letter-spacing:2px; }
-  .login-logo p { color:var(--muted); font-size:0.85rem; margin-top:4px; }
-  .login-tabs { display:flex; gap:8px; margin-bottom:28px; }
-  .login-tab {
-    flex:1; padding:10px; border-radius:10px; border:1px solid var(--border);
-    background:transparent; color:var(--muted); font-family:'DM Sans',sans-serif;
-    font-size:0.9rem; cursor:pointer; transition:all 0.2s;
-  }
-  .login-tab.active { background:var(--gold); color:var(--black); border-color:var(--gold); font-weight:600; }
-  .form-group { margin-bottom:18px; }
-  .form-group label { display:block; color:var(--muted); font-size:0.8rem; margin-bottom:8px; text-transform:uppercase; letter-spacing:1px; }
-  .form-group input {
-    width:100%; padding:14px 16px; background:var(--dark); border:1px solid var(--border);
-    border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.95rem;
-    outline:none; transition:border-color 0.2s;
-  }
-  .form-group input:focus { border-color:var(--gold); }
-  .btn-primary {
-    width:100%; padding:14px; background:var(--gold); color:var(--black);
-    border:none; border-radius:10px; font-family:'Syne',sans-serif; font-size:1rem;
-    font-weight:700; cursor:pointer; transition:all 0.2s; margin-top:8px;
-    letter-spacing:1px;
-  }
-  .btn-primary:hover { background:var(--gold-light); transform:translateY(-1px); }
-  .login-error { color:var(--red); font-size:0.85rem; text-align:center; margin-top:12px; display:none; }
-  .fsca-badge { text-align:center; margin-top:20px; color:var(--muted); font-size:0.75rem; }
+/* LOGIN */
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 30% 20%,#1a1400 0%,#0A0A0A 60%);position:relative;overflow:hidden;}
+[data-theme="light"] #login-screen{background:radial-gradient(ellipse at 30% 20%,#fffbee 0%,#f0f2f5 60%);}
+#login-screen::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23C9A84C' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px 40px;width:100%;max-width:420px;position:relative;z-index:1;box-shadow:0 40px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(201,168,76,0.1);}
+.login-logo{text-align:center;margin-bottom:36px;}
+.login-logo-mark{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;}
+.logo-diamond{width:36px;height:36px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));transform:rotate(45deg);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-diamond span{transform:rotate(-45deg);color:#000;font-weight:800;font-size:1rem;font-family:'Syne',sans-serif;}
+.login-logo h1{font-size:1.8rem;color:var(--gold);letter-spacing:3px;font-family:'Syne',sans-serif;}
+.login-logo p{color:var(--muted);font-size:0.82rem;margin-top:4px;}
+.login-tabs{display:flex;gap:8px;margin-bottom:24px;}
+.login-tab{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.9rem;cursor:pointer;transition:all 0.2s;}
+.login-tab.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:600;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;color:var(--muted);font-size:0.78rem;margin-bottom:7px;text-transform:uppercase;letter-spacing:1px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:13px 16px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.92rem;outline:none;transition:border-color 0.2s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold);}
+.form-group textarea{resize:vertical;min-height:80px;}
+.btn-primary{width:100%;padding:14px;background:var(--gold);color:#000;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:8px;letter-spacing:1px;}
+.btn-primary:hover{background:var(--gold-light);transform:translateY(-1px);}
+.login-error{color:var(--red);font-size:0.84rem;text-align:center;margin-top:10px;display:none;}
+.fsca-badge{text-align:center;margin-top:18px;color:var(--muted);font-size:0.74rem;}
 
-  /* ===== LAYOUT ===== */
-  #app { display:none; }
-  .sidebar {
-    position:fixed; left:0; top:0; bottom:0; width:240px;
-    background:var(--dark); border-right:1px solid var(--border);
-    display:flex; flex-direction:column; z-index:100;
-  }
-  .sidebar-logo { padding:24px 20px; border-bottom:1px solid var(--border); }
-  .sidebar-logo h2 { font-family:'Syne',sans-serif; color:var(--gold); font-size:1.3rem; letter-spacing:2px; }
-  .sidebar-logo p { color:var(--muted); font-size:0.72rem; margin-top:2px; }
-  .sidebar-user { padding:16px 20px; border-bottom:1px solid var(--border); }
-  .sidebar-user .user-name { font-weight:600; font-size:0.9rem; }
-  .sidebar-user .user-role { color:var(--gold); font-size:0.75rem; margin-top:2px; }
-  .sidebar-nav { flex:1; padding:16px 12px; overflow-y:auto; }
-  .nav-section { color:var(--muted); font-size:0.7rem; text-transform:uppercase; letter-spacing:1.5px; padding:8px 8px 4px; }
-  .nav-item {
-    display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px;
-    color:var(--muted); cursor:pointer; transition:all 0.15s; margin-bottom:2px;
-    font-size:0.88rem;
-  }
-  .nav-item:hover { background:var(--card); color:var(--text); }
-  .nav-item.active { background:rgba(201,168,76,0.12); color:var(--gold); }
-  .sidebar-logout {
-    padding:16px 12px; border-top:1px solid var(--border);
-  }
-  .btn-logout {
-    width:100%; padding:10px; background:transparent; border:1px solid var(--border);
-    border-radius:8px; color:var(--muted); cursor:pointer; font-family:'DM Sans',sans-serif;
-    font-size:0.85rem; transition:all 0.2s;
-  }
-  .btn-logout:hover { border-color:var(--red); color:var(--red); }
-  .main { margin-left:240px; padding:32px; min-height:100vh; }
-  .page { display:none; }
-  .page.active { display:block; }
-  .page-header { margin-bottom:28px; }
-  .page-header h2 { font-size:1.6rem; font-weight:700; }
-  .page-header p { color:var(--muted); margin-top:4px; font-size:0.9rem; }
+/* THEME TOGGLE */
+.theme-toggle{position:fixed;top:16px;right:16px;z-index:9999;background:var(--card);border:1px solid var(--border);border-radius:50%;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all 0.2s;}
+.theme-toggle:hover{border-color:var(--gold);}
 
-  /* ===== CARDS ===== */
-  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:16px; margin-bottom:28px; }
-  .stat-card {
-    background:var(--card); border:1px solid var(--border); border-radius:14px;
-    padding:20px; position:relative; overflow:hidden;
-  }
-  .stat-card::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:2px;
-    background:linear-gradient(90deg, var(--gold), transparent);
-  }
-  .stat-label { color:var(--muted); font-size:0.78rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
-  .stat-value { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:700; }
-  .stat-sub { color:var(--muted); font-size:0.78rem; margin-top:4px; }
-  .stat-icon { position:absolute; top:16px; right:16px; font-size:1.5rem; opacity:0.3; }
+/* LAYOUT */
+#app{display:none;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:var(--dark);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;transition:background 0.3s;}
+.sidebar-logo{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.sidebar-logo-mark{width:30px;height:30px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));transform:rotate(45deg);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sidebar-logo-mark span{transform:rotate(-45deg);color:#000;font-weight:800;font-size:0.85rem;font-family:'Syne',sans-serif;}
+.sidebar-logo-text h2{font-family:'Syne',sans-serif;color:var(--gold);font-size:1.1rem;letter-spacing:2px;}
+.sidebar-logo-text p{color:var(--muted);font-size:0.68rem;margin-top:1px;}
+.sidebar-user{padding:14px 20px;border-bottom:1px solid var(--border);}
+.sidebar-user .user-name{font-weight:600;font-size:0.88rem;}
+.sidebar-user .user-role{color:var(--gold);font-size:0.72rem;margin-top:2px;}
+.sidebar-user .user-status{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:5px;}
+.sidebar-nav{flex:1;padding:14px 10px;overflow-y:auto;}
+.nav-section{color:var(--muted);font-size:0.68rem;text-transform:uppercase;letter-spacing:1.5px;padding:8px 8px 4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--muted);cursor:pointer;transition:all 0.15s;margin-bottom:2px;font-size:0.86rem;}
+.nav-item:hover{background:var(--card);color:var(--text);}
+.nav-item.active{background:rgba(201,168,76,0.12);color:var(--gold);}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;border-radius:10px;padding:1px 7px;font-size:0.7rem;}
+.sidebar-bottom{padding:14px 10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;}
+.btn-logout{width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.83rem;transition:all 0.2s;}
+.btn-logout:hover{border-color:var(--red);color:var(--red);}
+.main{margin-left:240px;padding:28px 32px;min-height:100vh;}
+.page-header{margin-bottom:24px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.page-header-left h2{font-size:1.55rem;font-weight:700;}
+.page-header-left p{color:var(--muted);margin-top:3px;font-size:0.87rem;}
 
-  /* ===== TABLE ===== */
-  .table-card { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:24px; }
-  .table-header { padding:18px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
-  .table-header h3 { font-size:1rem; font-weight:600; }
-  table { width:100%; border-collapse:collapse; }
-  th { padding:12px 16px; text-align:left; color:var(--muted); font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; border-bottom:1px solid var(--border); font-weight:500; }
-  td { padding:14px 16px; border-bottom:1px solid rgba(37,43,58,0.5); font-size:0.88rem; }
-  tr:last-child td { border-bottom:none; }
-  tr:hover td { background:rgba(255,255,255,0.02); }
+/* CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;transition:background 0.3s;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent);}
+.stat-label{color:var(--muted);font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.stat-value{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:700;}
+.stat-icon{position:absolute;top:14px;right:16px;font-size:1.4rem;opacity:0.25;}
 
-  /* ===== BADGES ===== */
-  .badge { padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:500; display:inline-block; }
-  .badge-green { background:rgba(34,197,94,0.15); color:var(--green); }
-  .badge-red { background:rgba(239,68,68,0.15); color:var(--red); }
-  .badge-gold { background:rgba(201,168,76,0.15); color:var(--gold); }
-  .badge-blue { background:rgba(59,130,246,0.15); color:var(--blue); }
+/* TABLE */
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;transition:background 0.3s;}
+.table-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.table-header h3{font-size:0.97rem;font-weight:600;}
+table{width:100%;border-collapse:collapse;}
+th{padding:11px 16px;text-align:left;color:var(--muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);font-weight:500;}
+td{padding:13px 16px;border-bottom:1px solid rgba(37,43,58,0.4);font-size:0.86rem;}
+[data-theme="light"] td{border-bottom:1px solid rgba(226,232,240,0.8);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+[data-theme="light"] tr:hover td{background:rgba(0,0,0,0.015);}
 
-  /* ===== BUTTONS ===== */
-  .btn { padding:8px 16px; border-radius:8px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.85rem; font-weight:500; transition:all 0.15s; }
-  .btn-gold { background:var(--gold); color:var(--black); }
-  .btn-gold:hover { background:var(--gold-light); }
-  .btn-danger { background:rgba(239,68,68,0.15); color:var(--red); border:1px solid rgba(239,68,68,0.3); }
-  .btn-danger:hover { background:rgba(239,68,68,0.25); }
-  .btn-success { background:rgba(34,197,94,0.15); color:var(--green); border:1px solid rgba(34,197,94,0.3); }
-  .btn-success:hover { background:rgba(34,197,94,0.25); }
-  .btn-outline { background:transparent; color:var(--text); border:1px solid var(--border); }
-  .btn-outline:hover { border-color:var(--gold); color:var(--gold); }
-  .btn-sm { padding:5px 10px; font-size:0.78rem; }
+/* BADGES */
+.badge{padding:4px 10px;border-radius:20px;font-size:0.73rem;font-weight:500;display:inline-block;}
+.badge-green{background:rgba(34,197,94,0.15);color:var(--green);}
+.badge-red{background:rgba(239,68,68,0.15);color:var(--red);}
+.badge-gold{background:rgba(201,168,76,0.15);color:var(--gold);}
+.badge-blue{background:rgba(59,130,246,0.15);color:var(--blue);}
+.badge-muted{background:rgba(107,114,128,0.15);color:var(--muted);}
 
-  /* ===== MODAL ===== */
-  .modal-overlay {
-    position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000;
-    display:none; align-items:center; justify-content:center;
-  }
-  .modal-overlay.show { display:flex; }
-  .modal { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:32px; width:90%; max-width:480px; }
-  .modal h3 { font-size:1.2rem; margin-bottom:20px; }
-  .modal .form-group { margin-bottom:16px; }
-  .modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:24px; }
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.83rem;font-weight:500;transition:all 0.15s;display:inline-flex;align-items:center;gap:5px;}
+.btn-gold{background:var(--gold);color:#000;}
+.btn-gold:hover{background:var(--gold-light);}
+.btn-danger{background:rgba(239,68,68,0.12);color:var(--red);border:1px solid rgba(239,68,68,0.25);}
+.btn-danger:hover{background:rgba(239,68,68,0.22);}
+.btn-success{background:rgba(34,197,94,0.12);color:var(--green);border:1px solid rgba(34,197,94,0.25);}
+.btn-success:hover{background:rgba(34,197,94,0.22);}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+.btn-blue{background:rgba(59,130,246,0.12);color:var(--blue);border:1px solid rgba(59,130,246,0.25);}
+.btn-sm{padding:5px 10px;font-size:0.76rem;}
 
-  /* ===== FORM ELEMENTS ===== */
-  select {
-    width:100%; padding:12px 16px; background:var(--dark); border:1px solid var(--border);
-    border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.9rem;
-    outline:none; cursor:pointer;
-  }
-  select:focus { border-color:var(--gold); }
-  textarea {
-    width:100%; padding:12px 16px; background:var(--dark); border:1px solid var(--border);
-    border-radius:10px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.9rem;
-    outline:none; resize:vertical; min-height:80px;
-  }
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;}
+.modal h3{font-size:1.15rem;margin-bottom:18px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
 
-  /* ===== LOADING ===== */
-  .loading { text-align:center; padding:40px; color:var(--muted); }
-  .spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--gold); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
-  @keyframes spin { to { transform:rotate(360deg); } }
+/* PIN PAD */
+.pin-display{display:flex;gap:10px;justify-content:center;margin-bottom:24px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);transition:all 0.2s;}
+.pin-dot.filled{background:var(--gold);border-color:var(--gold);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto;}
+.pin-btn{padding:16px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:1.2rem;font-family:'Syne',sans-serif;cursor:pointer;transition:all 0.15s;text-align:center;}
+.pin-btn:hover{border-color:var(--gold);color:var(--gold);}
+.pin-btn:active{transform:scale(0.95);}
 
-  /* ===== CLIENT DASHBOARD ===== */
-  .portfolio-hero {
-    background:linear-gradient(135deg, var(--card) 0%, var(--card2) 100%);
-    border:1px solid var(--border); border-radius:16px; padding:32px;
-    margin-bottom:24px; position:relative; overflow:hidden;
-  }
-  .portfolio-hero::after {
-    content:''; position:absolute; right:-40px; top:-40px;
-    width:200px; height:200px; background:radial-gradient(circle, rgba(201,168,76,0.08), transparent 70%);
-    border-radius:50%;
-  }
-  .portfolio-hero .label { color:var(--muted); font-size:0.82rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
-  .portfolio-hero .value { font-family:'Syne',sans-serif; font-size:3rem; font-weight:800; color:var(--gold); }
-  .portfolio-hero .sub { color:var(--muted); font-size:0.85rem; margin-top:6px; }
+/* CHART */
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;}
+.chart-card h3{font-size:0.97rem;margin-bottom:16px;}
+.chart-container{position:relative;height:200px;}
 
-  /* ===== TOAST ===== */
-  #toast {
-    position:fixed; bottom:24px; right:24px; padding:14px 20px;
-    background:var(--card); border:1px solid var(--border); border-radius:10px;
-    font-size:0.88rem; z-index:9999; transform:translateY(80px); opacity:0;
-    transition:all 0.3s; box-shadow:0 8px 30px rgba(0,0,0,0.4);
-  }
-  #toast.show { transform:translateY(0); opacity:1; }
-  #toast.success { border-color:var(--green); color:var(--green); }
-  #toast.error { border-color:var(--red); color:var(--red); }
+/* PORTFOLIO HERO */
+.portfolio-hero{background:linear-gradient(135deg,var(--card) 0%,var(--card2) 100%);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px;position:relative;overflow:hidden;}
+.portfolio-hero::after{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(201,168,76,0.1),transparent 70%);border-radius:50%;}
+.portfolio-hero .label{color:var(--muted);font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.portfolio-hero .value{font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:800;color:var(--gold);}
+.portfolio-hero .sub{color:var(--muted);font-size:0.83rem;margin-top:5px;}
 
-  /* ===== EMPTY STATE ===== */
-  .empty { text-align:center; padding:40px; color:var(--muted); }
-  .empty-icon { font-size:2.5rem; margin-bottom:12px; }
+/* SUSPENDED */
+.suspended-screen{text-align:center;padding:80px 40px;}
+.suspended-screen .icon{font-size:4rem;margin-bottom:16px;}
+.suspended-screen h2{color:var(--red);margin-bottom:8px;}
+.suspended-screen p{color:var(--muted);}
 
-  /* ===== RESPONSIVE ===== */
-  @media (max-width:768px) {
-    .sidebar { width:200px; }
-    .main { margin-left:200px; padding:16px; }
-    .stats-grid { grid-template-columns:1fr 1fr; }
-  }
+/* TOAST */
+#toast{position:fixed;bottom:20px;right:20px;padding:13px 20px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:0.86rem;z-index:9999;transform:translateY(80px);opacity:0;transition:all 0.3s;box-shadow:0 8px 30px rgba(0,0,0,0.4);max-width:320px;}
+#toast.show{transform:translateY(0);opacity:1;}
+#toast.success{border-color:var(--green);color:var(--green);}
+#toast.error{border-color:var(--red);color:var(--red);}
 
-  /* ===== SETUP SCREEN ===== */
-  #setup-screen {
-    min-height:100vh; display:none; align-items:center; justify-content:center;
-    background:var(--black);
-  }
-  .setup-box {
-    background:var(--card); border:1px solid var(--border); border-radius:20px;
-    padding:48px 40px; width:100%; max-width:500px;
-  }
-  .setup-box h2 { font-size:1.5rem; color:var(--gold); margin-bottom:8px; }
-  .setup-box p { color:var(--muted); font-size:0.9rem; margin-bottom:24px; }
+/* EMPTY */
+.empty{text-align:center;padding:40px;color:var(--muted);}
+.empty-icon{font-size:2.2rem;margin-bottom:10px;}
 
-  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  .actions-row { display:flex; gap:8px; flex-wrap:wrap; }
-  
-  .balance-input-row { display:flex; gap:8px; align-items:flex-end; }
-  .balance-input-row .form-group { flex:1; margin-bottom:0; }
+/* SETUP */
+#setup-screen{min-height:100vh;display:none;align-items:center;justify-content:center;background:var(--black);}
+.setup-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:44px 38px;width:100%;max-width:500px;}
+.setup-box h2{font-size:1.45rem;color:var(--gold);margin-bottom:6px;}
+.setup-box p{color:var(--muted);font-size:0.88rem;margin-bottom:22px;}
+
+/* UTILS */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.actions-row{display:flex;gap:6px;flex-wrap:wrap;}
+.divider{height:1px;background:var(--border);margin:20px 0;}
+.text-gold{color:var(--gold);}
+.text-green{color:var(--green);}
+.text-red{color:var(--red);}
+.text-muted{color:var(--muted);}
+.fw-bold{font-weight:600;}
+.info-box{background:var(--dark);border-radius:10px;padding:14px 16px;margin-bottom:16px;border:1px solid var(--border);}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;}
+.info-row:not(:last-child){border-bottom:1px solid var(--border);}
+
+@media(max-width:768px){
+  .sidebar{width:200px;}
+  .main{margin-left:200px;padding:16px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .two-col{grid-template-columns:1fr;}
+}
+@media(max-width:560px){
+  .sidebar{transform:translateX(-100%);transition:transform 0.3s;}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+}
 </style>
 </head>
 <body>
 
-<!-- SETUP SCREEN (first time) -->
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌙</button>
+
+<!-- SETUP SCREEN -->
 <div id="setup-screen">
   <div class="setup-box">
     <h2>⚙️ CapitalX Setup</h2>
-    <p>Enter your GitHub credentials to connect the database. This only needs to be done once.</p>
-    <div class="form-group">
-      <label>GitHub Token (gist scope)</label>
-      <input type="password" id="setup-token" placeholder="ghp_...">
-    </div>
-    <div class="form-group">
-      <label>GitHub Username</label>
-      <input type="text" id="setup-username" placeholder="CapitalX-Broker">
-    </div>
-    <div class="form-group">
-      <label>Admin Password (set a new one)</label>
-      <input type="password" id="setup-admin-pass" placeholder="Choose a strong password">
-    </div>
+    <p>Connect your GitHub Gist database. This only needs to be done once.</p>
+    <div class="form-group"><label>GitHub Token (gist scope)</label><input type="password" id="setup-token" placeholder="ghp_..."></div>
+    <div class="form-group"><label>GitHub Username</label><input type="text" id="setup-username" placeholder="CapitalX-Broker"></div>
+    <div class="form-group"><label>Admin Password (set a new one)</label><input type="password" id="setup-admin-pass" placeholder="Choose a strong password"></div>
+    <div class="form-group"><label>Min Withdrawal (ZAR)</label><input type="number" id="setup-min-with" placeholder="100" value="100"></div>
+    <div class="form-group"><label>Max Withdrawal (ZAR)</label><input type="number" id="setup-max-with" placeholder="500000" value="500000"></div>
     <button class="btn-primary" onclick="setupPlatform()">Initialize Platform →</button>
     <div class="login-error" id="setup-error"></div>
   </div>
@@ -263,20 +218,22 @@
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">
-      <h1>CAPITAL<span style="color:#fff">X</span></h1>
+      <div class="login-logo-mark">
+        <div class="logo-diamond"><span>CX</span></div>
+        <h1>CAPITALX</h1>
+      </div>
       <p>SA Broker Platform · FSCA Regulated</p>
     </div>
     <div class="login-tabs">
       <button class="login-tab active" onclick="switchLoginTab('admin')">Admin</button>
       <button class="login-tab" onclick="switchLoginTab('client')">Client</button>
     </div>
+    <div id="client-username-field" class="form-group" style="display:none;">
+      <label>Username</label><input type="text" id="login-username" placeholder="Enter your username">
+    </div>
     <div class="form-group">
       <label id="login-label">Admin Password</label>
-      <input type="password" id="login-pass" placeholder="Enter password" onkeydown="if(e.key==='Enter')doLogin()">
-    </div>
-    <div id="client-username-field" class="form-group" style="display:none;">
-      <label>Client Username</label>
-      <input type="text" id="login-username" placeholder="Enter your username">
+      <input type="password" id="login-pass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="btn-primary" onclick="doLogin()">Sign In →</button>
     <div class="login-error" id="login-error">Invalid credentials. Please try again.</div>
@@ -286,447 +243,437 @@
 
 <!-- MAIN APP -->
 <div id="app">
-  <!-- SIDEBAR -->
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <h2>CAPITALX</h2>
-      <p>SA Broker Platform</p>
+      <div class="sidebar-logo-mark"><span>CX</span></div>
+      <div class="sidebar-logo-text">
+        <h2>CAPITALX</h2>
+        <p>SA Broker Platform</p>
+      </div>
     </div>
     <div class="sidebar-user">
-      <div class="user-name" id="sidebar-username">Admin</div>
+      <div class="user-name"><span class="user-status"></span><span id="sidebar-username">Admin</span></div>
       <div class="user-role" id="sidebar-role">Administrator</div>
     </div>
     <div class="sidebar-nav" id="sidebar-nav"></div>
-    <div class="sidebar-logout">
+    <div class="sidebar-bottom">
       <button class="btn-logout" onclick="logout()">← Sign Out</button>
     </div>
   </div>
-
-  <!-- MAIN CONTENT -->
   <div class="main" id="main-content"></div>
 </div>
 
 <!-- TOAST -->
 <div id="toast"></div>
 
-<!-- MODALS -->
+<!-- MODAL -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal" id="modal-content"></div>
 </div>
 
 <script>
 // ===== CONFIG =====
-const GITHUB_TOKEN_KEY = 'cx_token';
-const GITHUB_USER_KEY = 'cx_user';
-const GIST_ID_KEY = 'cx_gist';
-const SESSION_KEY = 'cx_session';
-
-let config = { token: '', username: '', gistId: '' };
-let db = { admin: { password: '' }, clients: {} };
-let currentUser = null; // { type: 'admin' } or { type: 'client', id: '...' }
-let loginTab = 'admin';
+const GITHUB_TOKEN_KEY='cx_token', GITHUB_USER_KEY='cx_user', GIST_ID_KEY='cx_gist', SESSION_KEY='cx_session', THEME_KEY='cx_theme';
+let config={token:'',username:'',gistId:''};
+let db={admin:{password:''},clients:{},announcements:[],settings:{minWithdrawal:100,maxWithdrawal:500000}};
+let currentUser=null;
+let loginTab='admin';
+let chartInstances={};
 
 // ===== INIT =====
-window.onload = async () => {
-  config.token = localStorage.getItem(GITHUB_TOKEN_KEY) || '';
-  config.username = localStorage.getItem(GITHUB_USER_KEY) || '';
-  config.gistId = localStorage.getItem(GIST_ID_KEY) || '';
+window.onload=async()=>{
+  const savedTheme=localStorage.getItem(THEME_KEY)||'dark';
+  document.documentElement.setAttribute('data-theme',savedTheme);
+  document.getElementById('theme-btn').textContent=savedTheme==='dark'?'☀️':'🌙';
 
-  // Check saved session
-  const sess = sessionStorage.getItem(SESSION_KEY);
-  if (sess) {
-    try {
-      currentUser = JSON.parse(sess);
-      if (config.token) {
-        await loadDB();
-        showApp();
-        return;
-      }
-    } catch(e) {}
-  }
+  config.token=localStorage.getItem(GITHUB_TOKEN_KEY)||'';
+  config.username=localStorage.getItem(GITHUB_USER_KEY)||'';
+  config.gistId=localStorage.getItem(GIST_ID_KEY)||'';
 
-  if (!config.token) {
-    showSetup();
-  } else {
-    await loadDB();
-    showLogin();
+  const sess=sessionStorage.getItem(SESSION_KEY);
+  if(sess&&config.token){
+    try{
+      currentUser=JSON.parse(sess);
+      await loadDB();
+      showApp();
+      return;
+    }catch(e){}
   }
+  if(!config.token) showSetup();
+  else{ await loadDB(); showLogin(); }
 };
 
-function showSetup() {
-  document.getElementById('setup-screen').style.display = 'flex';
-  document.getElementById('login-screen').style.display = 'none';
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme');
+  const next=cur==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  localStorage.setItem(THEME_KEY,next);
+  document.getElementById('theme-btn').textContent=next==='dark'?'☀️':'🌙';
 }
-function showLogin() {
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-}
-function showApp() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  renderApp();
-}
+function showSetup(){document.getElementById('setup-screen').style.display='flex';document.getElementById('login-screen').style.display='none';}
+function showLogin(){document.getElementById('setup-screen').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('app').style.display='none';}
+function showApp(){document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='block';renderApp();}
 
 // ===== GITHUB GIST API =====
-async function gistRequest(method, path, body) {
-  const res = await fetch(`https://api.github.com${path}`, {
-    method,
-    headers: {
-      'Authorization': `token ${config.token}`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/vnd.github.v3+json'
-    },
-    body: body ? JSON.stringify(body) : undefined
+async function gistRequest(method,path,body){
+  const res=await fetch(`https://api.github.com${path}`,{
+    method,headers:{'Authorization':`token ${config.token}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
+    body:body?JSON.stringify(body):undefined
   });
-  if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
+  if(!res.ok) throw new Error(`GitHub API error: ${res.status}`);
   return res.json();
 }
-
-async function loadDB() {
-  if (!config.gistId) return;
-  try {
-    const gist = await gistRequest('GET', `/gists/${config.gistId}`);
-    const content = gist.files['capitalx_db.json']?.content;
-    if (content) db = JSON.parse(content);
-  } catch(e) {
-    console.error('Failed to load DB:', e);
-  }
+async function loadDB(){
+  if(!config.gistId) return;
+  try{
+    const gist=await gistRequest('GET',`/gists/${config.gistId}`);
+    const content=gist.files['capitalx_db.json']?.content;
+    if(content) db=JSON.parse(content);
+    if(!db.settings) db.settings={minWithdrawal:100,maxWithdrawal:500000};
+    if(!db.announcements) db.announcements=[];
+  }catch(e){console.error('DB load error:',e);}
 }
-
-async function saveDB() {
-  const content = JSON.stringify(db, null, 2);
-  if (config.gistId) {
-    await gistRequest('PATCH', `/gists/${config.gistId}`, {
-      files: { 'capitalx_db.json': { content } }
-    });
-  } else {
-    const gist = await gistRequest('POST', '/gists', {
-      description: 'CapitalX Broker Database',
-      public: false,
-      files: { 'capitalx_db.json': { content } }
-    });
-    config.gistId = gist.id;
-    localStorage.setItem(GIST_ID_KEY, gist.id);
+async function saveDB(){
+  const content=JSON.stringify(db,null,2);
+  if(config.gistId){
+    await gistRequest('PATCH',`/gists/${config.gistId}`,{files:{'capitalx_db.json':{content}}});
+  }else{
+    const gist=await gistRequest('POST','/gists',{description:'CapitalX Broker Database',public:false,files:{'capitalx_db.json':{content}}});
+    config.gistId=gist.id;
+    localStorage.setItem(GIST_ID_KEY,gist.id);
   }
 }
 
 // ===== SETUP =====
-async function setupPlatform() {
-  const token = document.getElementById('setup-token').value.trim();
-  const username = document.getElementById('setup-username').value.trim();
-  const adminPass = document.getElementById('setup-admin-pass').value;
-  const errEl = document.getElementById('setup-error');
-
-  if (!token || !username || !adminPass) {
-    errEl.textContent = 'All fields are required.'; errEl.style.display='block'; return;
-  }
-
-  config.token = token;
-  config.username = username;
-  localStorage.setItem(GITHUB_TOKEN_KEY, token);
-  localStorage.setItem(GITHUB_USER_KEY, username);
-
-  db = { admin: { password: adminPass }, clients: {} };
-
-  try {
+async function setupPlatform(){
+  const token=document.getElementById('setup-token').value.trim();
+  const username=document.getElementById('setup-username').value.trim();
+  const adminPass=document.getElementById('setup-admin-pass').value;
+  const minW=parseFloat(document.getElementById('setup-min-with').value)||100;
+  const maxW=parseFloat(document.getElementById('setup-max-with').value)||500000;
+  const errEl=document.getElementById('setup-error');
+  if(!token||!username||!adminPass){errEl.textContent='All fields required.';errEl.style.display='block';return;}
+  config.token=token;config.username=username;
+  localStorage.setItem(GITHUB_TOKEN_KEY,token);localStorage.setItem(GITHUB_USER_KEY,username);
+  db={admin:{password:adminPass},clients:{},announcements:[],settings:{minWithdrawal:minW,maxWithdrawal:maxW}};
+  try{
     await saveDB();
-    errEl.style.display = 'none';
-    showLogin();
-    toast('Platform initialized successfully!', 'success');
-  } catch(e) {
-    errEl.textContent = 'Failed to connect. Check your token and try again.';
-    errEl.style.display = 'block';
-  }
+    errEl.style.display='none';
+    showLogin();toast('Platform initialized!','success');
+  }catch(e){errEl.textContent='Failed to connect. Check your token.';errEl.style.display='block';}
 }
 
 // ===== LOGIN =====
-function switchLoginTab(tab) {
-  loginTab = tab;
-  document.querySelectorAll('.login-tab').forEach((t,i) => {
-    t.classList.toggle('active', (i===0 && tab==='admin') || (i===1 && tab==='client'));
-  });
-  document.getElementById('client-username-field').style.display = tab==='client' ? 'block' : 'none';
-  document.getElementById('login-label').textContent = tab==='admin' ? 'Admin Password' : 'Client Password';
+function switchLoginTab(tab){
+  loginTab=tab;
+  document.querySelectorAll('.login-tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='admin')||(i===1&&tab==='client')));
+  document.getElementById('client-username-field').style.display=tab==='client'?'block':'none';
+  document.getElementById('login-label').textContent=tab==='admin'?'Admin Password':'Client Password';
 }
-
-async function doLogin() {
-  const pass = document.getElementById('login-pass').value;
-  const errEl = document.getElementById('login-error');
-  errEl.style.display = 'none';
-
-  if (loginTab === 'admin') {
-    if (pass === db.admin.password) {
-      currentUser = { type: 'admin' };
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+async function doLogin(){
+  const pass=document.getElementById('login-pass').value;
+  const errEl=document.getElementById('login-error');
+  errEl.style.display='none';
+  if(loginTab==='admin'){
+    if(pass===db.admin.password){
+      currentUser={type:'admin'};
+      sessionStorage.setItem(SESSION_KEY,JSON.stringify(currentUser));
       showApp();
-    } else {
-      errEl.style.display = 'block';
-    }
-  } else {
-    const username = document.getElementById('login-username').value.trim();
-    const client = Object.values(db.clients).find(c => c.username === username && c.password === pass);
-    if (client) {
-      currentUser = { type: 'client', id: client.id };
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+    }else errEl.style.display='block';
+  }else{
+    const username=document.getElementById('login-username').value.trim();
+    const client=Object.values(db.clients).find(c=>c.username===username&&c.password===pass);
+    if(client){
+      if(client.suspended){errEl.textContent='Your account has been suspended. Contact support.';errEl.style.display='block';return;}
+      currentUser={type:'client',id:client.id};
+      // Log activity
+      if(!db.clients[client.id].activityLog) db.clients[client.id].activityLog=[];
+      db.clients[client.id].activityLog.unshift({action:'Login',date:new Date().toISOString()});
+      db.clients[client.id].lastLogin=new Date().toISOString();
+      await saveDB();
+      sessionStorage.setItem(SESSION_KEY,JSON.stringify(currentUser));
       showApp();
-    } else {
-      errEl.style.display = 'block';
-    }
+    }else errEl.style.display='block';
   }
 }
-
-function logout() {
-  currentUser = null;
+function logout(){
+  currentUser=null;
   sessionStorage.removeItem(SESSION_KEY);
   showLogin();
 }
 
-// ===== APP RENDER =====
-function renderApp() {
-  if (currentUser.type === 'admin') renderAdmin();
+// ===== RENDER APP =====
+function renderApp(){
+  if(currentUser.type==='admin') renderAdmin();
   else renderClient();
 }
 
+// ============================
 // ===== ADMIN APP =====
-function renderAdmin() {
-  document.getElementById('sidebar-username').textContent = 'Admin';
-  document.getElementById('sidebar-role').textContent = 'Administrator · FSCA';
-
-  document.getElementById('sidebar-nav').innerHTML = `
+// ============================
+function renderAdmin(){
+  document.getElementById('sidebar-username').textContent='Admin';
+  document.getElementById('sidebar-role').textContent='Administrator · FSCA';
+  const clients=Object.values(db.clients);
+  const pendingDep=clients.flatMap(c=>(c.deposits||[]).filter(d=>d.status==='pending')).length;
+  const pendingWith=clients.flatMap(c=>(c.withdrawals||[]).filter(w=>w.status==='pending')).length;
+  const pending=pendingDep+pendingWith;
+  document.getElementById('sidebar-nav').innerHTML=`
     <div class="nav-section">Overview</div>
     <div class="nav-item active" onclick="adminPage('dashboard')">📊 Dashboard</div>
     <div class="nav-section">Clients</div>
     <div class="nav-item" onclick="adminPage('clients')">👥 Clients</div>
     <div class="nav-item" onclick="adminPage('balances')">💰 Balance Control</div>
+    <div class="nav-item" onclick="adminPage('activity')">📋 Activity Log</div>
     <div class="nav-section">Finance</div>
-    <div class="nav-item" onclick="adminPage('deposits')">💳 Deposits</div>
-    <div class="nav-item" onclick="adminPage('withdrawals')">🏦 Withdrawals</div>
+    <div class="nav-item" onclick="adminPage('deposits')">💳 Deposits${pendingDep>0?`<span class="nav-badge">${pendingDep}</span>`:''}</div>
+    <div class="nav-item" onclick="adminPage('withdrawals')">🏦 Withdrawals${pendingWith>0?`<span class="nav-badge">${pendingWith}</span>`:''}</div>
     <div class="nav-section">Settings</div>
     <div class="nav-item" onclick="adminPage('announcements')">📢 Announcements</div>
+    <div class="nav-item" onclick="adminPage('settings')">⚙️ Settings</div>
   `;
-
   adminPage('dashboard');
 }
 
-let currentAdminPage = 'dashboard';
-function adminPage(page) {
-  currentAdminPage = page;
-  document.querySelectorAll('.nav-item').forEach(n => {
-    n.classList.toggle('active', n.textContent.toLowerCase().includes(page) || 
-      (page==='dashboard' && n.textContent.includes('Dashboard')));
-  });
+function setAdminNav(page){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const map={dashboard:'Dashboard',clients:'Clients',balances:'Balance',activity:'Activity',deposits:'Deposits',withdrawals:'Withdrawals',announcements:'Announcements',settings:'Settings'};
+  document.querySelectorAll('.nav-item').forEach(n=>{if(n.textContent.includes(map[page]))n.classList.add('active');});
+}
 
-  const main = document.getElementById('main-content');
-  const clients = Object.values(db.clients);
+function adminPage(page){
+  setAdminNav(page);
+  const main=document.getElementById('main-content');
+  const clients=Object.values(db.clients);
 
-  if (page === 'dashboard') {
-    const totalBalance = clients.reduce((s,c) => s + (c.balance||0), 0);
-    const pendingDep = clients.flatMap(c => (c.deposits||[]).filter(d => d.status==='pending')).length;
-    const pendingWith = clients.flatMap(c => (c.withdrawals||[]).filter(w => w.status==='pending')).length;
+  if(page==='dashboard'){
+    const totalBal=clients.reduce((s,c)=>s+(c.balance||0),0);
+    const pendingDep=clients.flatMap(c=>(c.deposits||[]).filter(d=>d.status==='pending')).length;
+    const pendingWith=clients.flatMap(c=>(c.withdrawals||[]).filter(w=>w.status==='pending')).length;
+    const suspended=clients.filter(c=>c.suspended).length;
 
-    main.innerHTML = `
+    // Build monthly AUM data from deposits
+    const monthlyData=buildMonthlyData(clients);
+
+    main.innerHTML=`
       <div class="page-header">
-        <h2>Dashboard</h2>
-        <p>CapitalX Broker · FSCA Regulated · South Africa</p>
+        <div class="page-header-left"><h2>Dashboard</h2><p>CapitalX Broker · FSCA Regulated · South Africa</p></div>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
       </div>
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Total AUM</div>
-          <div class="stat-value">R ${fmtNum(totalBalance)}</div>
-          <div class="stat-icon">💰</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Active Clients</div>
-          <div class="stat-value">${clients.length}</div>
-          <div class="stat-icon">👥</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Pending Deposits</div>
-          <div class="stat-value">${pendingDep}</div>
-          <div class="stat-icon">💳</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Pending Withdrawals</div>
-          <div class="stat-value">${pendingWith}</div>
-          <div class="stat-icon">🏦</div>
-        </div>
+        <div class="stat-card"><div class="stat-label">Total AUM</div><div class="stat-value text-gold">R ${fmtNum(totalBal)}</div><div class="stat-icon">💰</div></div>
+        <div class="stat-card"><div class="stat-label">Active Clients</div><div class="stat-value">${clients.length-suspended}</div><div class="stat-icon">👥</div></div>
+        <div class="stat-card"><div class="stat-label">Pending Deposits</div><div class="stat-value">${pendingDep}</div><div class="stat-icon">💳</div></div>
+        <div class="stat-card"><div class="stat-label">Pending Withdrawals</div><div class="stat-value">${pendingWith}</div><div class="stat-icon">🏦</div></div>
+        ${suspended>0?`<div class="stat-card"><div class="stat-label">Suspended</div><div class="stat-value text-red">${suspended}</div><div class="stat-icon">🚫</div></div>`:''}
+      </div>
+      <div class="chart-card">
+        <h3>Platform AUM Over Time</h3>
+        <div class="chart-container"><canvas id="aum-chart"></canvas></div>
       </div>
       <div class="table-card">
-        <div class="table-header"><h3>Recent Clients</h3><button class="btn btn-gold btn-sm" onclick="adminPage('clients')">View All</button></div>
-        ${clients.length === 0 ? '<div class="empty"><div class="empty-icon">👥</div>No clients yet. Add your first client.</div>' : `
-        <table>
-          <thead><tr><th>Name</th><th>Username</th><th>Balance</th><th>Status</th></tr></thead>
-          <tbody>${clients.slice(0,5).map(c => `
-            <tr>
-              <td>${c.name}</td>
-              <td>${c.username}</td>
-              <td><strong>R ${fmtNum(c.balance||0)}</strong></td>
-              <td><span class="badge badge-green">Active</span></td>
-            </tr>`).join('')}
-          </tbody>
-        </table>`}
+        <div class="table-header"><h3>All Clients</h3><button class="btn btn-gold btn-sm" onclick="adminPage('clients')">Manage</button></div>
+        ${clients.length===0?'<div class="empty"><div class="empty-icon">👥</div>No clients yet.</div>':`
+        <table><thead><tr><th>Name</th><th>Username</th><th>Balance</th><th>Last Login</th><th>Status</th></tr></thead>
+        <tbody>${clients.map(c=>`
+          <tr>
+            <td><strong>${c.name}</strong></td>
+            <td>${c.username}</td>
+            <td class="text-gold fw-bold">R ${fmtNum(c.balance||0)}</td>
+            <td class="text-muted">${c.lastLogin?fmtDate(c.lastLogin):'Never'}</td>
+            <td><span class="badge badge-${c.suspended?'red':'green'}">${c.suspended?'Suspended':'Active'}</span></td>
+          </tr>`).join('')}
+        </tbody></table>`}
       </div>
     `;
+    setTimeout(()=>renderAUMChart(monthlyData),50);
   }
 
-  else if (page === 'clients') {
-    main.innerHTML = `
-      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
-        <div><h2>Client Management</h2><p>Add and manage client accounts</p></div>
-        <button class="btn btn-gold" onclick="showAddClientModal()">+ Add Client</button>
+  else if(page==='clients'){
+    main.innerHTML=`
+      <div class="page-header">
+        <div class="page-header-left"><h2>Client Management</h2><p>Add and manage client accounts</p></div>
+        <div class="actions-row">
+          <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+          <button class="btn btn-gold" onclick="showAddClientModal()">+ Add Client</button>
+        </div>
       </div>
       <div class="table-card">
         <div class="table-header"><h3>All Clients (${clients.length})</h3></div>
-        ${clients.length === 0 ? '<div class="empty"><div class="empty-icon">👥</div>No clients yet.</div>' : `
-        <table>
-          <thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Balance</th><th>Actions</th></tr></thead>
-          <tbody>${clients.map(c => `
-            <tr>
-              <td><strong>${c.name}</strong></td>
-              <td>${c.username}</td>
-              <td>${c.email||'-'}</td>
-              <td>R ${fmtNum(c.balance||0)}</td>
-              <td class="actions-row">
-                <button class="btn btn-outline btn-sm" onclick="showEditClientModal('${c.id}')">Edit</button>
-                <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')">Delete</button>
-              </td>
-            </tr>`).join('')}
-          </tbody>
-        </table>`}
+        ${clients.length===0?'<div class="empty"><div class="empty-icon">👥</div>No clients yet.</div>':`
+        <table><thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Balance</th><th>Last Login</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>${clients.map(c=>`
+          <tr>
+            <td><strong>${c.name}</strong></td>
+            <td>${c.username}</td>
+            <td>${c.email||'-'}</td>
+            <td class="text-gold fw-bold">R ${fmtNum(c.balance||0)}</td>
+            <td class="text-muted">${c.lastLogin?fmtDate(c.lastLogin):'Never'}</td>
+            <td><span class="badge badge-${c.suspended?'red':'green'}">${c.suspended?'Suspended':'Active'}</span></td>
+            <td><div class="actions-row">
+              <button class="btn btn-outline btn-sm" onclick="showEditClientModal('${c.id}')">Edit</button>
+              <button class="btn btn-${c.suspended?'success':'danger'} btn-sm" onclick="toggleSuspend('${c.id}')">${c.suspended?'Unsuspend':'Suspend'}</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')">Delete</button>
+            </div></td>
+          </tr>`).join('')}
+        </tbody></table>`}
       </div>
     `;
   }
 
-  else if (page === 'balances') {
-    main.innerHTML = `
+  else if(page==='balances'){
+    main.innerHTML=`
       <div class="page-header">
-        <h2>Balance Control</h2>
-        <p>Adjust client account balances directly</p>
+        <div class="page-header-left"><h2>Balance Control</h2><p>Adjust client balances directly</p></div>
+        <button class="btn btn-blue btn-sm" onclick="showBulkBalanceModal()">⚡ Bulk Update</button>
       </div>
-      ${clients.length === 0 ? '<div class="table-card"><div class="empty"><div class="empty-icon">💰</div>No clients yet.</div></div>' : `
+      ${clients.length===0?'<div class="table-card"><div class="empty"><div class="empty-icon">💰</div>No clients yet.</div></div>':`
       <div class="table-card">
-        <div class="table-header"><h3>Client Balances</h3></div>
-        <table>
-          <thead><tr><th>Client</th><th>Current Balance</th><th>Adjust Amount (ZAR)</th><th>Action</th></tr></thead>
-          <tbody>${clients.map(c => `
-            <tr>
-              <td><strong>${c.name}</strong><br><span style="color:var(--muted);font-size:0.78rem">${c.username}</span></td>
-              <td style="font-family:'Syne',sans-serif;font-size:1.1rem;color:var(--gold)">R ${fmtNum(c.balance||0)}</td>
-              <td>
-                <div class="balance-input-row">
-                  <div class="form-group">
-                    <input type="number" id="bal-${c.id}" placeholder="e.g. 5000" style="width:150px;padding:8px 12px;background:var(--dark);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none">
-                  </div>
-                </div>
-              </td>
-              <td>
-                <button class="btn btn-success btn-sm" onclick="adjustBalance('${c.id}', 'add')">+ Add</button>
-                <button class="btn btn-danger btn-sm" onclick="adjustBalance('${c.id}', 'deduct')" style="margin-left:4px">- Deduct</button>
-                <button class="btn btn-outline btn-sm" onclick="setBalance('${c.id}')" style="margin-left:4px">= Set</button>
-              </td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
+        <div class="table-header"><h3>Individual Balance Control</h3></div>
+        <table><thead><tr><th>Client</th><th>Current Balance</th><th>Amount (ZAR)</th><th>Actions</th></tr></thead>
+        <tbody>${clients.map(c=>`
+          <tr>
+            <td><strong>${c.name}</strong><br><span class="text-muted" style="font-size:0.76rem">${c.username}</span></td>
+            <td><span style="font-family:'Syne',sans-serif;font-size:1.05rem;color:var(--gold)">R ${fmtNum(c.balance||0)}</span></td>
+            <td><input type="number" id="bal-${c.id}" placeholder="Enter amount" style="width:140px;padding:8px 12px;background:var(--dark);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;font-size:0.85rem;"></td>
+            <td><div class="actions-row">
+              <button class="btn btn-success btn-sm" onclick="adjustBalance('${c.id}','add')">+ Add</button>
+              <button class="btn btn-danger btn-sm" onclick="adjustBalance('${c.id}','deduct')">− Deduct</button>
+              <button class="btn btn-outline btn-sm" onclick="setBalance('${c.id}')">= Set</button>
+            </div></td>
+          </tr>`).join('')}
+        </tbody></table>
       </div>`}
     `;
   }
 
-  else if (page === 'deposits') {
-    const allDeps = clients.flatMap(c => (c.deposits||[]).map(d => ({...d, clientName: c.name, clientId: c.id})));
-    allDeps.sort((a,b) => new Date(b.date) - new Date(a.date));
+  else if(page==='activity'){
+    const allActivity=clients.flatMap(c=>(c.activityLog||[]).map(a=>({...a,clientName:c.name,clientId:c.id})));
+    allActivity.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    main.innerHTML=`
+      <div class="page-header"><div class="page-header-left"><h2>Activity Log</h2><p>Track all client actions</p></div></div>
+      <div class="table-card">
+        <div class="table-header"><h3>Recent Activity</h3></div>
+        ${allActivity.length===0?'<div class="empty"><div class="empty-icon">📋</div>No activity yet.</div>':`
+        <table><thead><tr><th>Client</th><th>Action</th><th>Date & Time</th></tr></thead>
+        <tbody>${allActivity.slice(0,100).map(a=>`
+          <tr>
+            <td><strong>${a.clientName}</strong></td>
+            <td>${a.action}</td>
+            <td class="text-muted">${fmtDateTime(a.date)}</td>
+          </tr>`).join('')}
+        </tbody></table>`}
+      </div>
+    `;
+  }
 
-    main.innerHTML = `
-      <div class="page-header"><h2>Deposit Approvals</h2><p>Approve or reject incoming deposits</p></div>
+  else if(page==='deposits'){
+    const allDeps=clients.flatMap(c=>(c.deposits||[]).map(d=>({...d,clientName:c.name,clientId:c.id})));
+    allDeps.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    main.innerHTML=`
+      <div class="page-header"><div class="page-header-left"><h2>Deposit Approvals</h2><p>Approve or reject incoming deposits</p></div></div>
       <div class="table-card">
         <div class="table-header"><h3>All Deposits</h3></div>
-        ${allDeps.length === 0 ? '<div class="empty"><div class="empty-icon">💳</div>No deposits yet.</div>' : `
-        <table>
-          <thead><tr><th>Client</th><th>Amount</th><th>Method</th><th>Reference</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>${allDeps.map(d => `
-            <tr>
-              <td>${d.clientName}</td>
-              <td><strong>R ${fmtNum(d.amount)}</strong></td>
-              <td>${d.method}</td>
-              <td>${d.reference||'-'}</td>
-              <td>${fmtDate(d.date)}</td>
-              <td><span class="badge badge-${d.status==='approved'?'green':d.status==='rejected'?'red':'gold'}">${d.status}</span></td>
-              <td>
-                ${d.status==='pending' ? `
-                  <button class="btn btn-success btn-sm" onclick="approveDeposit('${d.clientId}','${d.id}')">✓ Approve</button>
-                  <button class="btn btn-danger btn-sm" onclick="rejectDeposit('${d.clientId}','${d.id}')" style="margin-left:4px">✗ Reject</button>
-                ` : '-'}
-              </td>
-            </tr>`).join('')}
-          </tbody>
-        </table>`}
+        ${allDeps.length===0?'<div class="empty"><div class="empty-icon">💳</div>No deposits yet.</div>':`
+        <table><thead><tr><th>Client</th><th>Amount</th><th>Method</th><th>Reference</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>${allDeps.map(d=>`
+          <tr>
+            <td>${d.clientName}</td>
+            <td class="fw-bold">R ${fmtNum(d.amount)}</td>
+            <td>${d.method}</td>
+            <td>${d.reference||'-'}</td>
+            <td>${fmtDate(d.date)}</td>
+            <td><span class="badge badge-${d.status==='approved'?'green':d.status==='rejected'?'red':'gold'}">${d.status}</span></td>
+            <td>${d.status==='pending'?`
+              <div class="actions-row">
+                <button class="btn btn-success btn-sm" onclick="approveDeposit('${d.clientId}','${d.id}')">✓ Approve</button>
+                <button class="btn btn-danger btn-sm" onclick="rejectDeposit('${d.clientId}','${d.id}')">✗ Reject</button>
+              </div>`:'-'}
+            </td>
+          </tr>`).join('')}
+        </tbody></table>`}
       </div>
     `;
   }
 
-  else if (page === 'withdrawals') {
-    const allWiths = clients.flatMap(c => (c.withdrawals||[]).map(w => ({...w, clientName: c.name, clientId: c.id})));
-    allWiths.sort((a,b) => new Date(b.date) - new Date(a.date));
-
-    main.innerHTML = `
-      <div class="page-header"><h2>Withdrawal Approvals</h2><p>Review and process withdrawal requests</p></div>
+  else if(page==='withdrawals'){
+    const allWiths=clients.flatMap(c=>(c.withdrawals||[]).map(w=>({...w,clientName:c.name,clientId:c.id})));
+    allWiths.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    main.innerHTML=`
+      <div class="page-header"><div class="page-header-left"><h2>Withdrawal Approvals</h2><p>Review and process withdrawal requests</p></div></div>
       <div class="table-card">
         <div class="table-header"><h3>All Withdrawals</h3></div>
-        ${allWiths.length === 0 ? '<div class="empty"><div class="empty-icon">🏦</div>No withdrawals yet.</div>' : `
-        <table>
-          <thead><tr><th>Client</th><th>Amount</th><th>Bank</th><th>Account No.</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>${allWiths.map(w => `
-            <tr>
-              <td>${w.clientName}</td>
-              <td><strong>R ${fmtNum(w.amount)}</strong></td>
-              <td>${w.bank}</td>
-              <td>${w.accountNo}</td>
-              <td>${fmtDate(w.date)}</td>
-              <td><span class="badge badge-${w.status==='approved'?'green':w.status==='rejected'?'red':'gold'}">${w.status}</span></td>
-              <td>
-                ${w.status==='pending' ? `
-                  <button class="btn btn-success btn-sm" onclick="approveWithdrawal('${w.clientId}','${w.id}')">✓ Approve</button>
-                  <button class="btn btn-danger btn-sm" onclick="rejectWithdrawal('${w.clientId}','${w.id}')" style="margin-left:4px">✗ Reject</button>
-                ` : '-'}
-              </td>
-            </tr>`).join('')}
-          </tbody>
-        </table>`}
+        ${allWiths.length===0?'<div class="empty"><div class="empty-icon">🏦</div>No withdrawals yet.</div>':`
+        <table><thead><tr><th>Client</th><th>Amount</th><th>Bank</th><th>Account No.</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>${allWiths.map(w=>`
+          <tr>
+            <td>${w.clientName}</td>
+            <td class="fw-bold">R ${fmtNum(w.amount)}</td>
+            <td>${w.bank}</td>
+            <td>${w.accountNo}</td>
+            <td>${fmtDate(w.date)}</td>
+            <td><span class="badge badge-${w.status==='approved'?'green':w.status==='rejected'?'red':'gold'}">${w.status}</span></td>
+            <td>${w.status==='pending'?`
+              <div class="actions-row">
+                <button class="btn btn-success btn-sm" onclick="approveWithdrawal('${w.clientId}','${w.id}')">✓ Approve</button>
+                <button class="btn btn-danger btn-sm" onclick="rejectWithdrawal('${w.clientId}','${w.id}')">✗ Reject</button>
+              </div>`:'-'}
+            </td>
+          </tr>`).join('')}
+        </tbody></table>`}
       </div>
     `;
   }
 
-  else if (page === 'announcements') {
-    main.innerHTML = `
-      <div class="page-header"><h2>Announcements</h2><p>Send alerts to clients</p></div>
+  else if(page==='announcements'){
+    main.innerHTML=`
+      <div class="page-header"><div class="page-header-left"><h2>Announcements</h2><p>Send alerts to clients</p></div></div>
       <div class="table-card" style="padding:24px;">
-        <h3 style="margin-bottom:20px">New Announcement</h3>
+        <h3 style="margin-bottom:18px">New Announcement</h3>
         <div class="form-group"><label>Title</label><input type="text" id="ann-title" placeholder="Announcement title"></div>
         <div class="form-group"><label>Message</label><textarea id="ann-msg" placeholder="Write your message..."></textarea></div>
         <button class="btn btn-gold" onclick="sendAnnouncement()">📢 Send Announcement</button>
       </div>
       <div class="table-card">
         <div class="table-header"><h3>Sent Announcements</h3></div>
-        ${!(db.announcements?.length) ? '<div class="empty"><div class="empty-icon">📢</div>No announcements yet.</div>' : `
-        <table>
-          <thead><tr><th>Title</th><th>Message</th><th>Date</th></tr></thead>
-          <tbody>${(db.announcements||[]).map(a => `
-            <tr>
-              <td><strong>${a.title}</strong></td>
-              <td>${a.message}</td>
-              <td>${fmtDate(a.date)}</td>
-            </tr>`).join('')}
-          </tbody>
-        </table>`}
+        ${!(db.announcements?.length)?'<div class="empty"><div class="empty-icon">📢</div>No announcements yet.</div>':`
+        <table><thead><tr><th>Title</th><th>Message</th><th>Date</th></tr></thead>
+        <tbody>${db.announcements.map(a=>`
+          <tr>
+            <td class="fw-bold">${a.title}</td>
+            <td>${a.message}</td>
+            <td class="text-muted">${fmtDate(a.date)}</td>
+          </tr>`).join('')}
+        </tbody></table>`}
+      </div>
+    `;
+  }
+
+  else if(page==='settings'){
+    main.innerHTML=`
+      <div class="page-header"><div class="page-header-left"><h2>Settings</h2><p>Platform configuration</p></div></div>
+      <div class="table-card" style="padding:24px;max-width:520px;">
+        <h3 style="margin-bottom:18px">Withdrawal Limits</h3>
+        <div class="two-col">
+          <div class="form-group"><label>Minimum Withdrawal (ZAR)</label><input type="number" id="set-min" value="${db.settings?.minWithdrawal||100}"></div>
+          <div class="form-group"><label>Maximum Withdrawal (ZAR)</label><input type="number" id="set-max" value="${db.settings?.maxWithdrawal||500000}"></div>
+        </div>
+        <button class="btn btn-gold" onclick="saveSettings()">Save Settings</button>
+      </div>
+      <div class="table-card" style="padding:24px;max-width:520px;">
+        <h3 style="margin-bottom:18px">Change Admin Password</h3>
+        <div class="form-group"><label>New Password</label><input type="password" id="new-pass" placeholder="Enter new password"></div>
+        <div class="form-group"><label>Confirm Password</label><input type="password" id="conf-pass" placeholder="Confirm new password"></div>
+        <button class="btn btn-gold" onclick="changeAdminPass()">Update Password</button>
       </div>
     `;
   }
 }
 
 // ===== ADMIN ACTIONS =====
-function showAddClientModal() {
-  document.getElementById('modal-content').innerHTML = `
-    <h3>Add New Client</h3>
+function showAddClientModal(){
+  document.getElementById('modal-content').innerHTML=`
+    <h3>➕ Add New Client</h3>
     <div class="two-col">
       <div class="form-group"><label>Full Name</label><input type="text" id="m-name" placeholder="John Doe"></div>
       <div class="form-group"><label>Email</label><input type="email" id="m-email" placeholder="john@email.com"></div>
@@ -744,17 +691,17 @@ function showAddClientModal() {
   document.getElementById('modal-overlay').classList.add('show');
 }
 
-function showEditClientModal(id) {
-  const c = db.clients[id];
-  document.getElementById('modal-content').innerHTML = `
-    <h3>Edit Client</h3>
+function showEditClientModal(id){
+  const c=db.clients[id];
+  document.getElementById('modal-content').innerHTML=`
+    <h3>✏️ Edit Client</h3>
     <div class="two-col">
       <div class="form-group"><label>Full Name</label><input type="text" id="m-name" value="${c.name}"></div>
       <div class="form-group"><label>Email</label><input type="email" id="m-email" value="${c.email||''}"></div>
     </div>
     <div class="two-col">
       <div class="form-group"><label>Username</label><input type="text" id="m-username" value="${c.username}"></div>
-      <div class="form-group"><label>New Password (leave blank to keep)</label><input type="password" id="m-password" placeholder="New password"></div>
+      <div class="form-group"><label>New Password (blank = keep)</label><input type="password" id="m-password" placeholder="New password"></div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
@@ -764,208 +711,404 @@ function showEditClientModal(id) {
   document.getElementById('modal-overlay').classList.add('show');
 }
 
-async function addClient() {
-  const name = document.getElementById('m-name').value.trim();
-  const email = document.getElementById('m-email').value.trim();
-  const username = document.getElementById('m-username').value.trim();
-  const password = document.getElementById('m-password').value;
-  const balance = parseFloat(document.getElementById('m-balance').value) || 0;
+function showBulkBalanceModal(){
+  const clients=Object.values(db.clients);
+  if(!clients.length){toast('No clients to update.','error');return;}
+  document.getElementById('modal-content').innerHTML=`
+    <h3>⚡ Bulk Balance Update</h3>
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:16px">Apply the same amount to all clients at once.</p>
+    <div class="form-group"><label>Amount (ZAR)</label><input type="number" id="bulk-amount" placeholder="Enter amount"></div>
+    <div class="form-group"><label>Action</label>
+      <select id="bulk-action">
+        <option value="add">Add to all balances</option>
+        <option value="deduct">Deduct from all balances</option>
+        <option value="set">Set all balances to this amount</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="bulkBalance()">Apply to All (${clients.length} clients)</button>
+    </div>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
+}
 
-  if (!name || !username || !password) { toast('Name, username and password required.', 'error'); return; }
-  
-  // Check duplicate username
-  if (Object.values(db.clients).find(c => c.username === username)) {
-    toast('Username already exists.', 'error'); return;
-  }
-
-  const id = 'c_' + Date.now();
-  db.clients[id] = { id, name, email, username, password, balance, deposits:[], withdrawals:[], createdAt: new Date().toISOString() };
-  
+async function addClient(){
+  const name=document.getElementById('m-name').value.trim();
+  const email=document.getElementById('m-email').value.trim();
+  const username=document.getElementById('m-username').value.trim();
+  const password=document.getElementById('m-password').value;
+  const balance=parseFloat(document.getElementById('m-balance').value)||0;
+  if(!name||!username||!password){toast('Name, username & password required.','error');return;}
+  if(Object.values(db.clients).find(c=>c.username===username)){toast('Username already exists.','error');return;}
+  const id='c_'+Date.now();
+  db.clients[id]={id,name,email,username,password,balance,deposits:[],withdrawals:[],activityLog:[{action:'Account created',date:new Date().toISOString()}],createdAt:new Date().toISOString(),suspended:false};
   await saveDB();
   closeModal();
-  toast(`Client ${name} added!`, 'success');
+  toast(`Client ${name} added!`,'success');
+  // Show welcome email template
+  showWelcomeEmail(name,username,password,email);
   adminPage('clients');
 }
 
-async function editClient(id) {
-  const name = document.getElementById('m-name').value.trim();
-  const email = document.getElementById('m-email').value.trim();
-  const username = document.getElementById('m-username').value.trim();
-  const password = document.getElementById('m-password').value;
-
-  if (!name || !username) { toast('Name and username required.', 'error'); return; }
-
-  db.clients[id].name = name;
-  db.clients[id].email = email;
-  db.clients[id].username = username;
-  if (password) db.clients[id].password = password;
-
-  await saveDB();
-  closeModal();
-  toast('Client updated!', 'success');
-  adminPage('clients');
+function showWelcomeEmail(name,username,password,email){
+  document.getElementById('modal-content').innerHTML=`
+    <h3>📧 Welcome Email Template</h3>
+    <p style="color:var(--muted);font-size:0.84rem;margin-bottom:16px">Copy and send this to the client:</p>
+    <div style="background:var(--dark);border-radius:10px;padding:16px;font-size:0.85rem;line-height:1.7;border:1px solid var(--border);">
+      <strong>Subject: Welcome to CapitalX — Your Account is Ready</strong><br><br>
+      Dear ${name},<br><br>
+      Welcome to <strong>CapitalX</strong> — South Africa's trusted broker platform.<br><br>
+      Your account has been successfully created. Here are your login details:<br><br>
+      🌐 <strong>Platform:</strong> https://capitalx-broker.github.io/capitalx<br>
+      👤 <strong>Username:</strong> ${username}<br>
+      🔑 <strong>Password:</strong> ${password}<br><br>
+      Please log in and change your password after your first sign-in.<br><br>
+      For any queries, contact your account manager.<br><br>
+      Regards,<br>
+      <strong>CapitalX Team</strong><br>
+      FSCA Regulated · South Africa
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="copyWelcomeEmail('${name}','${username}','${password}')">📋 Copy Email</button>
+      <button class="btn btn-gold" onclick="closeModal()">Done</button>
+    </div>
+  `;
+  document.getElementById('modal-overlay').classList.add('show');
 }
 
-async function deleteClient(id) {
-  if (!confirm(`Delete client ${db.clients[id].name}? This cannot be undone.`)) return;
+function copyWelcomeEmail(name,username,password){
+  const text=`Subject: Welcome to CapitalX — Your Account is Ready\n\nDear ${name},\n\nWelcome to CapitalX — South Africa's trusted broker platform.\n\nYour account has been successfully created. Here are your login details:\n\nPlatform: https://capitalx-broker.github.io/capitalx\nUsername: ${username}\nPassword: ${password}\n\nPlease log in and change your password after your first sign-in.\n\nFor any queries, contact your account manager.\n\nRegards,\nCapitalX Team\nFSCA Regulated · South Africa`;
+  navigator.clipboard.writeText(text).then(()=>toast('Email copied to clipboard!','success'));
+}
+
+async function editClient(id){
+  const name=document.getElementById('m-name').value.trim();
+  const email=document.getElementById('m-email').value.trim();
+  const username=document.getElementById('m-username').value.trim();
+  const password=document.getElementById('m-password').value;
+  if(!name||!username){toast('Name and username required.','error');return;}
+  db.clients[id].name=name;db.clients[id].email=email;db.clients[id].username=username;
+  if(password) db.clients[id].password=password;
+  await saveDB();closeModal();toast('Client updated!','success');adminPage('clients');
+}
+
+async function deleteClient(id){
+  if(!confirm(`Delete client ${db.clients[id].name}? This cannot be undone.`)) return;
   delete db.clients[id];
+  await saveDB();toast('Client deleted.','success');adminPage('clients');
+}
+
+async function toggleSuspend(id){
+  db.clients[id].suspended=!db.clients[id].suspended;
+  const action=db.clients[id].suspended?'Account suspended':'Account unsuspended';
+  if(!db.clients[id].activityLog) db.clients[id].activityLog=[];
+  db.clients[id].activityLog.unshift({action,date:new Date().toISOString()});
   await saveDB();
-  toast('Client deleted.', 'success');
+  toast(`Client ${db.clients[id].suspended?'suspended':'unsuspended'}.`,'success');
   adminPage('clients');
 }
 
-async function adjustBalance(id, action) {
-  const input = document.getElementById(`bal-${id}`);
-  const amount = parseFloat(input.value);
-  if (!amount || amount <= 0) { toast('Enter a valid amount.', 'error'); return; }
-
-  if (action === 'add') db.clients[id].balance = (db.clients[id].balance||0) + amount;
-  else if (action === 'deduct') db.clients[id].balance = Math.max(0, (db.clients[id].balance||0) - amount);
-  
-  await saveDB();
-  toast(`Balance ${action === 'add' ? 'added' : 'deducted'}: R ${fmtNum(amount)}`, 'success');
-  input.value = '';
-  adminPage('balances');
+async function adjustBalance(id,action){
+  const input=document.getElementById(`bal-${id}`);
+  const amount=parseFloat(input.value);
+  if(!amount||amount<=0){toast('Enter a valid amount.','error');return;}
+  if(action==='add') db.clients[id].balance=(db.clients[id].balance||0)+amount;
+  else if(action==='deduct') db.clients[id].balance=Math.max(0,(db.clients[id].balance||0)-amount);
+  if(!db.clients[id].activityLog) db.clients[id].activityLog=[];
+  db.clients[id].activityLog.unshift({action:`Admin ${action==='add'?'added':'deducted'} R ${fmtNum(amount)}`,date:new Date().toISOString()});
+  await saveDB();toast(`Balance ${action==='add'?'added':'deducted'}: R ${fmtNum(amount)}`,'success');input.value='';adminPage('balances');
 }
 
-async function setBalance(id) {
-  const input = document.getElementById(`bal-${id}`);
-  const amount = parseFloat(input.value);
-  if (isNaN(amount) || amount < 0) { toast('Enter a valid amount.', 'error'); return; }
-  
-  db.clients[id].balance = amount;
-  await saveDB();
-  toast(`Balance set to R ${fmtNum(amount)}`, 'success');
-  input.value = '';
-  adminPage('balances');
+async function setBalance(id){
+  const input=document.getElementById(`bal-${id}`);
+  const amount=parseFloat(input.value);
+  if(isNaN(amount)||amount<0){toast('Enter a valid amount.','error');return;}
+  db.clients[id].balance=amount;
+  if(!db.clients[id].activityLog) db.clients[id].activityLog=[];
+  db.clients[id].activityLog.unshift({action:`Admin set balance to R ${fmtNum(amount)}`,date:new Date().toISOString()});
+  await saveDB();toast(`Balance set to R ${fmtNum(amount)}`,'success');input.value='';adminPage('balances');
 }
 
-async function approveDeposit(clientId, depId) {
-  const dep = db.clients[clientId].deposits.find(d => d.id === depId);
-  if (!dep) return;
-  dep.status = 'approved';
-  db.clients[clientId].balance = (db.clients[clientId].balance||0) + dep.amount;
-  await saveDB();
-  toast(`Deposit approved — R ${fmtNum(dep.amount)} added to balance`, 'success');
-  adminPage('deposits');
+async function bulkBalance(){
+  const amount=parseFloat(document.getElementById('bulk-amount').value);
+  const action=document.getElementById('bulk-action').value;
+  if(isNaN(amount)||amount<0){toast('Enter a valid amount.','error');return;}
+  const clients=Object.values(db.clients);
+  clients.forEach(c=>{
+    if(action==='add') db.clients[c.id].balance=(c.balance||0)+amount;
+    else if(action==='deduct') db.clients[c.id].balance=Math.max(0,(c.balance||0)-amount);
+    else if(action==='set') db.clients[c.id].balance=amount;
+    if(!db.clients[c.id].activityLog) db.clients[c.id].activityLog=[];
+    db.clients[c.id].activityLog.unshift({action:`Bulk balance update: ${action} R ${fmtNum(amount)}`,date:new Date().toISOString()});
+  });
+  await saveDB();closeModal();toast(`Bulk update applied to ${clients.length} clients!`,'success');adminPage('balances');
 }
 
-async function rejectDeposit(clientId, depId) {
-  const dep = db.clients[clientId].deposits.find(d => d.id === depId);
-  if (!dep) return;
-  dep.status = 'rejected';
-  await saveDB();
-  toast('Deposit rejected.', 'success');
-  adminPage('deposits');
+async function approveDeposit(clientId,depId){
+  const dep=db.clients[clientId].deposits.find(d=>d.id===depId);
+  if(!dep) return;
+  dep.status='approved';
+  db.clients[clientId].balance=(db.clients[clientId].balance||0)+dep.amount;
+  if(!db.clients[clientId].activityLog) db.clients[clientId].activityLog=[];
+  db.clients[clientId].activityLog.unshift({action:`Deposit approved: R ${fmtNum(dep.amount)}`,date:new Date().toISOString()});
+  await saveDB();toast(`Deposit approved — R ${fmtNum(dep.amount)} added`,'success');adminPage('deposits');
 }
 
-async function approveWithdrawal(clientId, withId) {
-  const w = db.clients[clientId].withdrawals.find(x => x.id === withId);
-  if (!w) return;
-  if (db.clients[clientId].balance < w.amount) {
-    toast('Insufficient client balance.', 'error'); return;
+async function rejectDeposit(clientId,depId){
+  const dep=db.clients[clientId].deposits.find(d=>d.id===depId);
+  if(!dep) return;
+  dep.status='rejected';
+  if(!db.clients[clientId].activityLog) db.clients[clientId].activityLog=[];
+  db.clients[clientId].activityLog.unshift({action:`Deposit rejected: R ${fmtNum(dep.amount)}`,date:new Date().toISOString()});
+  await saveDB();toast('Deposit rejected.','success');adminPage('deposits');
+}
+
+async function approveWithdrawal(clientId,withId){
+  const w=db.clients[clientId].withdrawals.find(x=>x.id===withId);
+  if(!w) return;
+  if(db.clients[clientId].balance<w.amount){toast('Insufficient client balance.','error');return;}
+  w.status='approved';
+  db.clients[clientId].balance-=w.amount;
+  if(!db.clients[clientId].activityLog) db.clients[clientId].activityLog=[];
+  db.clients[clientId].activityLog.unshift({action:`Withdrawal approved: R ${fmtNum(w.amount)}`,date:new Date().toISOString()});
+  await saveDB();toast(`Withdrawal approved — R ${fmtNum(w.amount)} deducted`,'success');adminPage('withdrawals');
+}
+
+async function rejectWithdrawal(clientId,withId){
+  const w=db.clients[clientId].withdrawals.find(x=>x.id===withId);
+  if(!w) return;
+  w.status='rejected';
+  if(!db.clients[clientId].activityLog) db.clients[clientId].activityLog=[];
+  db.clients[clientId].activityLog.unshift({action:`Withdrawal rejected: R ${fmtNum(w.amount)}`,date:new Date().toISOString()});
+  await saveDB();toast('Withdrawal rejected.','success');adminPage('withdrawals');
+}
+
+async function sendAnnouncement(){
+  const title=document.getElementById('ann-title').value.trim();
+  const message=document.getElementById('ann-msg').value.trim();
+  if(!title||!message){toast('Title and message required.','error');return;}
+  if(!db.announcements) db.announcements=[];
+  db.announcements.unshift({id:'a_'+Date.now(),title,message,date:new Date().toISOString()});
+  await saveDB();toast('Announcement sent!','success');adminPage('announcements');
+}
+
+async function saveSettings(){
+  const minW=parseFloat(document.getElementById('set-min').value)||100;
+  const maxW=parseFloat(document.getElementById('set-max').value)||500000;
+  if(minW>=maxW){toast('Min must be less than max.','error');return;}
+  db.settings={minWithdrawal:minW,maxWithdrawal:maxW};
+  await saveDB();toast('Settings saved!','success');
+}
+
+async function changeAdminPass(){
+  const np=document.getElementById('new-pass').value;
+  const cp=document.getElementById('conf-pass').value;
+  if(!np){toast('Enter a new password.','error');return;}
+  if(np!==cp){toast('Passwords do not match.','error');return;}
+  db.admin.password=np;
+  await saveDB();toast('Password updated!','success');
+  document.getElementById('new-pass').value='';document.getElementById('conf-pass').value='';
+}
+
+function exportCSV(){
+  const clients=Object.values(db.clients);
+  if(!clients.length){toast('No clients to export.','error');return;}
+  const headers=['Name','Username','Email','Balance','Status','Last Login','Created'];
+  const rows=clients.map(c=>[
+    c.name,c.username,c.email||'',
+    c.balance||0,
+    c.suspended?'Suspended':'Active',
+    c.lastLogin?fmtDate(c.lastLogin):'Never',
+    fmtDate(c.createdAt)
+  ]);
+  const csv=[headers,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='capitalx_clients.csv';a.click();
+  toast('CSV exported!','success');
+}
+
+// ===== CHART =====
+function buildMonthlyData(clients){
+  const months={};
+  const now=new Date();
+  for(let i=5;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    months[key]=0;
   }
-  w.status = 'approved';
-  db.clients[clientId].balance -= w.amount;
-  await saveDB();
-  toast(`Withdrawal approved — R ${fmtNum(w.amount)} deducted`, 'success');
-  adminPage('withdrawals');
+  clients.forEach(c=>{
+    (c.deposits||[]).filter(d=>d.status==='approved').forEach(d=>{
+      const key=d.date.substring(0,7);
+      if(months.hasOwnProperty(key)) months[key]+=d.amount;
+    });
+  });
+  return months;
 }
 
-async function rejectWithdrawal(clientId, withId) {
-  const w = db.clients[clientId].withdrawals.find(x => x.id === withId);
-  if (!w) return;
-  w.status = 'rejected';
-  await saveDB();
-  toast('Withdrawal rejected.', 'success');
-  adminPage('withdrawals');
+function renderAUMChart(monthlyData){
+  const ctx=document.getElementById('aum-chart');
+  if(!ctx) return;
+  if(chartInstances.aum) chartInstances.aum.destroy();
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  chartInstances.aum=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:Object.keys(monthlyData).map(k=>{const[y,m]=k.split('-');return new Date(y,m-1).toLocaleDateString('en-ZA',{month:'short',year:'2-digit'});}),
+      datasets:[{label:'Deposits (ZAR)',data:Object.values(monthlyData),borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,0.1)',borderWidth:2,fill:true,tension:0.4,pointBackgroundColor:'#C9A84C'}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:isDark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'},ticks:{color:'#6B7280'}},y:{grid:{color:isDark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'},ticks:{color:'#6B7280',callback:v=>'R '+fmtNum(v)}}}}
+  });
 }
 
-async function sendAnnouncement() {
-  const title = document.getElementById('ann-title').value.trim();
-  const message = document.getElementById('ann-msg').value.trim();
-  if (!title || !message) { toast('Title and message required.', 'error'); return; }
-  
-  if (!db.announcements) db.announcements = [];
-  db.announcements.unshift({ id: 'a_'+Date.now(), title, message, date: new Date().toISOString() });
-  await saveDB();
-  toast('Announcement sent!', 'success');
-  adminPage('announcements');
+function renderPLChart(clientId,canvasId){
+  const client=db.clients[clientId];
+  const ctx=document.getElementById(canvasId);
+  if(!ctx) return;
+  if(chartInstances[canvasId]) chartInstances[canvasId].destroy();
+
+  // Build running balance over time from approved transactions
+  const events=[];
+  (client.deposits||[]).filter(d=>d.status==='approved').forEach(d=>events.push({date:d.date,amount:d.amount,type:'deposit'}));
+  (client.withdrawals||[]).filter(w=>w.status==='approved').forEach(w=>events.push({date:w.date,amount:-w.amount,type:'withdrawal'}));
+  events.sort((a,b)=>new Date(a.date)-new Date(b.date));
+
+  if(events.length===0){
+    ctx.parentElement.innerHTML='<div class="empty" style="padding:20px"><div class="empty-icon">📊</div>No transaction history yet.</div>';
+    return;
+  }
+
+  let running=0;
+  const labels=[],data=[];
+  events.forEach(e=>{running+=e.amount;labels.push(fmtDate(e.date));data.push(running);});
+
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  chartInstances[canvasId]=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[{label:'Balance (ZAR)',data,borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,0.08)',borderWidth:2,fill:true,tension:0.4,pointBackgroundColor:'#C9A84C',pointRadius:4}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:isDark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'},ticks:{color:'#6B7280'}},y:{grid:{color:isDark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'},ticks:{color:'#6B7280',callback:v=>'R '+fmtNum(v)}}}}
+  });
 }
 
+// ============================
 // ===== CLIENT APP =====
-function renderClient() {
-  const client = db.clients[currentUser.id];
-  if (!client) { logout(); return; }
-
-  document.getElementById('sidebar-username').textContent = client.name;
-  document.getElementById('sidebar-role').textContent = 'Client · ZAR Account';
-
-  document.getElementById('sidebar-nav').innerHTML = `
-    <div class="nav-section">Trading</div>
+// ============================
+function renderClient(){
+  const client=db.clients[currentUser.id];
+  if(!client){logout();return;}
+  document.getElementById('sidebar-username').textContent=client.name;
+  document.getElementById('sidebar-role').textContent='Client · ZAR Account';
+  document.getElementById('sidebar-nav').innerHTML=`
+    <div class="nav-section">Account</div>
     <div class="nav-item active" onclick="clientPage('overview')">🏠 Overview</div>
+    <div class="nav-item" onclick="clientPage('statement')">📄 Statement</div>
     <div class="nav-section">Finance</div>
     <div class="nav-item" onclick="clientPage('deposit')">💳 Deposit</div>
     <div class="nav-item" onclick="clientPage('withdraw')">🏦 Withdraw</div>
     <div class="nav-section">Info</div>
     <div class="nav-item" onclick="clientPage('announcements')">📢 Announcements</div>
   `;
-
   clientPage('overview');
 }
 
-function clientPage(page) {
-  document.querySelectorAll('.nav-item').forEach(n => {
-    n.classList.toggle('active', n.textContent.toLowerCase().includes(page));
-  });
+function clientPage(page){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>{if(n.textContent.toLowerCase().includes(page.toLowerCase()))n.classList.add('active');});
 
-  const client = db.clients[currentUser.id];
-  const main = document.getElementById('main-content');
+  const client=db.clients[currentUser.id];
+  if(!client){logout();return;}
+  const main=document.getElementById('main-content');
 
-  if (page === 'overview') {
-    const deps = (client.deposits||[]).filter(d => d.status==='approved');
-    const withs = (client.withdrawals||[]).filter(w => w.status==='approved');
+  if(client.suspended){
+    main.innerHTML=`<div class="suspended-screen"><div class="icon">🚫</div><h2>Account Suspended</h2><p>Your account has been temporarily suspended.<br>Please contact CapitalX support for assistance.</p></div>`;
+    return;
+  }
 
-    main.innerHTML = `
+  if(page==='overview'){
+    const approvedDeps=(client.deposits||[]).filter(d=>d.status==='approved');
+    const approvedWiths=(client.withdrawals||[]).filter(w=>w.status==='approved');
+    const totalDep=approvedDeps.reduce((s,d)=>s+d.amount,0);
+    const totalWith=approvedWiths.reduce((s,w)=>s+w.amount,0);
+
+    main.innerHTML=`
       <div class="page-header">
-        <h2>Welcome back, ${client.name.split(' ')[0]} 👋</h2>
-        <p>CapitalX Trading Account · ZAR</p>
+        <div class="page-header-left"><h2>Welcome back, ${client.name.split(' ')[0]} 👋</h2><p>CapitalX Trading Account · ZAR</p></div>
+        <button class="btn btn-gold btn-sm" onclick="clientPage('deposit')">+ Deposit</button>
       </div>
       <div class="portfolio-hero">
         <div class="label">Available Balance</div>
         <div class="value">R ${fmtNum(client.balance||0)}</div>
-        <div class="sub">CapitalX ZAR Account</div>
+        <div class="sub">CapitalX ZAR Account · Updated just now</div>
       </div>
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Total Deposited</div>
-          <div class="stat-value" style="font-size:1.4rem">R ${fmtNum(deps.reduce((s,d)=>s+d.amount,0))}</div>
-          <div class="stat-icon">💳</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Total Withdrawn</div>
-          <div class="stat-value" style="font-size:1.4rem">R ${fmtNum(withs.reduce((s,w)=>s+w.amount,0))}</div>
-          <div class="stat-icon">🏦</div>
-        </div>
+        <div class="stat-card"><div class="stat-label">Total Deposited</div><div class="stat-value" style="font-size:1.3rem">R ${fmtNum(totalDep)}</div><div class="stat-icon">💳</div></div>
+        <div class="stat-card"><div class="stat-label">Total Withdrawn</div><div class="stat-value" style="font-size:1.3rem">R ${fmtNum(totalWith)}</div><div class="stat-icon">🏦</div></div>
+        <div class="stat-card"><div class="stat-label">Net Position</div><div class="stat-value" style="font-size:1.3rem;color:${(client.balance||0)>=0?'var(--green)':'var(--red)'}">R ${fmtNum(client.balance||0)}</div><div class="stat-icon">📊</div></div>
       </div>
-      ${db.announcements?.length ? `
+      <div class="chart-card">
+        <h3>Balance History</h3>
+        <div class="chart-container"><canvas id="pl-chart"></canvas></div>
+      </div>
+      ${db.announcements?.length?`
       <div class="table-card">
-        <div class="table-header"><h3>📢 Latest Announcements</h3></div>
-        ${db.announcements.slice(0,3).map(a => `
-          <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
-            <div style="font-weight:600;margin-bottom:4px">${a.title}</div>
-            <div style="color:var(--muted);font-size:0.85rem">${a.message}</div>
-            <div style="color:var(--muted);font-size:0.75rem;margin-top:6px">${fmtDate(a.date)}</div>
+        <div class="table-header"><h3>📢 Latest from CapitalX</h3></div>
+        ${db.announcements.slice(0,2).map(a=>`
+          <div style="padding:14px 20px;border-bottom:1px solid var(--border);last-child:border-none">
+            <div class="fw-bold" style="margin-bottom:3px">${a.title}</div>
+            <div class="text-muted" style="font-size:0.83rem">${a.message}</div>
+            <div class="text-muted" style="font-size:0.74rem;margin-top:5px">${fmtDate(a.date)}</div>
           </div>`).join('')}
-      </div>` : ''}
+      </div>`:''}
+    `;
+    setTimeout(()=>renderPLChart(currentUser.id,'pl-chart'),50);
+  }
+
+  else if(page==='statement'){
+    const allTx=[];
+    (client.deposits||[]).filter(d=>d.status==='approved').forEach(d=>allTx.push({date:d.date,type:'Deposit',method:d.method,amount:d.amount,credit:d.amount,debit:0}));
+    (client.withdrawals||[]).filter(w=>w.status==='approved').forEach(w=>allTx.push({date:w.date,type:'Withdrawal',method:w.bank,amount:w.amount,credit:0,debit:w.amount}));
+    allTx.sort((a,b)=>new Date(a.date)-new Date(b.date));
+
+    let running=0;
+    const rows=allTx.map(tx=>{running+=tx.credit-tx.debit;return{...tx,balance:running};});
+
+    main.innerHTML=`
+      <div class="page-header">
+        <div class="page-header-left"><h2>Account Statement</h2><p>Full transaction history</p></div>
+        <button class="btn btn-gold btn-sm" onclick="downloadPDF()">⬇ Download PDF</button>
+      </div>
+      <div class="info-box" style="margin-bottom:20px">
+        <div class="info-row"><span class="text-muted">Account Holder</span><span class="fw-bold">${client.name}</span></div>
+        <div class="info-row"><span class="text-muted">Username</span><span>${client.username}</span></div>
+        <div class="info-row"><span class="text-muted">Current Balance</span><span class="text-gold fw-bold">R ${fmtNum(client.balance||0)}</span></div>
+        <div class="info-row"><span class="text-muted">Statement Date</span><span>${fmtDate(new Date().toISOString())}</span></div>
+      </div>
+      <div class="table-card" id="statement-table">
+        <div class="table-header"><h3>Transactions</h3></div>
+        ${rows.length===0?'<div class="empty"><div class="empty-icon">📄</div>No transactions yet.</div>':`
+        <table><thead><tr><th>Date</th><th>Type</th><th>Method</th><th>Credit</th><th>Debit</th><th>Balance</th></tr></thead>
+        <tbody>${rows.map(r=>`
+          <tr>
+            <td>${fmtDate(r.date)}</td>
+            <td><span class="badge badge-${r.type==='Deposit'?'green':'red'}">${r.type}</span></td>
+            <td>${r.method}</td>
+            <td class="text-green">${r.credit>0?'R '+fmtNum(r.credit):'-'}</td>
+            <td class="text-red">${r.debit>0?'R '+fmtNum(r.debit):'-'}</td>
+            <td class="fw-bold">R ${fmtNum(r.balance)}</td>
+          </tr>`).join('')}
+        </tbody></table>`}
+      </div>
     `;
   }
 
-  else if (page === 'deposit') {
-    main.innerHTML = `
-      <div class="page-header"><h2>Deposit Funds</h2><p>Add funds to your CapitalX account</p></div>
-      <div class="table-card" style="padding:28px;max-width:500px;">
-        <h3 style="margin-bottom:20px">Deposit Request</h3>
+  else if(page==='deposit'){
+    main.innerHTML=`
+      <div class="page-header"><div class="page-header-left"><h2>Deposit Funds</h2><p>Add funds to your CapitalX account</p></div></div>
+      <div class="table-card" style="padding:26px;max-width:500px;">
+        <h3 style="margin-bottom:18px">Deposit Request</h3>
         <div class="form-group"><label>Amount (ZAR)</label><input type="number" id="dep-amount" placeholder="Enter amount" min="100"></div>
         <div class="form-group"><label>Payment Method</label>
           <select id="dep-method">
@@ -978,35 +1121,32 @@ function clientPage(page) {
         <div class="form-group"><label>Reference Note</label><input type="text" id="dep-ref" placeholder="Optional reference"></div>
         <button class="btn btn-gold" onclick="submitDeposit()" style="width:100%">Submit Deposit Request</button>
       </div>
-      <div class="table-card" style="margin-top:24px;">
+      <div class="table-card" style="margin-top:20px;">
         <div class="table-header"><h3>Deposit History</h3></div>
-        ${!(client.deposits?.length) ? '<div class="empty"><div class="empty-icon">💳</div>No deposits yet.</div>' : `
-        <table>
-          <thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead>
-          <tbody>${[...(client.deposits||[])].reverse().map(d => `
-            <tr>
-              <td>${fmtDate(d.date)}</td>
-              <td>R ${fmtNum(d.amount)}</td>
-              <td>${d.method}</td>
-              <td><span class="badge badge-${d.status==='approved'?'green':d.status==='rejected'?'red':'gold'}">${d.status}</span></td>
-            </tr>`).join('')}
-          </tbody>
-        </table>`}
+        ${!(client.deposits?.length)?'<div class="empty"><div class="empty-icon">💳</div>No deposits yet.</div>':`
+        <table><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead>
+        <tbody>${[...(client.deposits||[])].reverse().map(d=>`
+          <tr>
+            <td>${fmtDate(d.date)}</td>
+            <td>R ${fmtNum(d.amount)}</td>
+            <td>${d.method}</td>
+            <td><span class="badge badge-${d.status==='approved'?'green':d.status==='rejected'?'red':'gold'}">${d.status}</span></td>
+          </tr>`).join('')}
+        </tbody></table>`}
       </div>
     `;
   }
 
-  else if (page === 'withdraw') {
-    main.innerHTML = `
-      <div class="page-header"><h2>Withdraw Funds</h2><p>Request a withdrawal to your bank account</p></div>
-      <div class="table-card" style="padding:28px;max-width:500px;">
+  else if(page==='withdraw'){
+    const minW=db.settings?.minWithdrawal||100;
+    const maxW=db.settings?.maxWithdrawal||500000;
+    main.innerHTML=`
+      <div class="page-header"><div class="page-header-left"><h2>Withdraw Funds</h2><p>Request a withdrawal to your bank account</p></div></div>
+      <div class="table-card" style="padding:26px;max-width:500px;">
         <h3 style="margin-bottom:8px">Withdrawal Request</h3>
-        <p style="color:var(--muted);font-size:0.85rem;margin-bottom:20px">ℹ Withdrawals are processed within 1–2 business days after admin approval.</p>
-        <div style="background:var(--dark);border-radius:10px;padding:14px;margin-bottom:20px;display:flex;justify-content:space-between">
-          <span style="color:var(--muted);font-size:0.85rem">Available Balance</span>
-          <strong style="color:var(--gold)">R ${fmtNum(client.balance||0)}</strong>
-        </div>
-        <div class="form-group"><label>Amount (ZAR)</label><input type="number" id="with-amount" placeholder="Enter amount" max="${client.balance||0}"></div>
+        <p class="text-muted" style="font-size:0.84rem;margin-bottom:16px">ℹ Processed within 1–2 business days after approval. Limits: R ${fmtNum(minW)} – R ${fmtNum(maxW)}</p>
+        <div class="info-box"><div class="info-row"><span class="text-muted">Available Balance</span><span class="text-gold fw-bold">R ${fmtNum(client.balance||0)}</span></div></div>
+        <div class="form-group"><label>Amount (ZAR)</label><input type="number" id="with-amount" placeholder="Enter amount"></div>
         <div class="form-group"><label>Bank Name</label>
           <select id="with-bank">
             <option>Absa Bank</option><option>Standard Bank</option><option>FNB</option>
@@ -1017,95 +1157,209 @@ function clientPage(page) {
           <div class="form-group"><label>Account Number</label><input type="text" id="with-accno" placeholder="Account number"></div>
           <div class="form-group"><label>Branch Code</label><input type="text" id="with-branch" placeholder="Branch code"></div>
         </div>
+        <div class="form-group"><label>Withdrawal PIN</label><p class="text-muted" style="font-size:0.8rem;margin-bottom:10px">${client.withdrawalPin?'Enter your 4-digit PIN to confirm':'Set a 4-digit PIN first'}</p>
+          <input type="password" id="with-pin" placeholder="Enter 4-digit PIN" maxlength="4" style="letter-spacing:8px;font-size:1.2rem;text-align:center;">
+        </div>
+        ${!client.withdrawalPin?`<p style="color:var(--gold);font-size:0.82rem;margin-bottom:12px">⚠️ You need to <a href="#" onclick="showSetPinModal()" style="color:var(--gold)">set a withdrawal PIN</a> first.</p>`:''}
         <button class="btn btn-gold" onclick="submitWithdrawal()" style="width:100%">Submit Withdrawal Request</button>
+        <button class="btn btn-outline btn-sm" onclick="showSetPinModal()" style="margin-top:10px;width:100%">${client.withdrawalPin?'🔑 Change PIN':'🔑 Set Withdrawal PIN'}</button>
       </div>
-      <div class="table-card" style="margin-top:24px;">
+      <div class="table-card" style="margin-top:20px;">
         <div class="table-header"><h3>Withdrawal History</h3></div>
-        ${!(client.withdrawals?.length) ? '<div class="empty"><div class="empty-icon">🏦</div>No withdrawals yet.</div>' : `
-        <table>
-          <thead><tr><th>Date</th><th>Amount</th><th>Bank</th><th>Status</th></tr></thead>
-          <tbody>${[...(client.withdrawals||[])].reverse().map(w => `
-            <tr>
-              <td>${fmtDate(w.date)}</td>
-              <td>R ${fmtNum(w.amount)}</td>
-              <td>${w.bank}</td>
-              <td><span class="badge badge-${w.status==='approved'?'green':w.status==='rejected'?'red':'gold'}">${w.status}</span></td>
-            </tr>`).join('')}
-          </tbody>
-        </table>`}
+        ${!(client.withdrawals?.length)?'<div class="empty"><div class="empty-icon">🏦</div>No withdrawals yet.</div>':`
+        <table><thead><tr><th>Date</th><th>Amount</th><th>Bank</th><th>Status</th></tr></thead>
+        <tbody>${[...(client.withdrawals||[])].reverse().map(w=>`
+          <tr>
+            <td>${fmtDate(w.date)}</td>
+            <td>R ${fmtNum(w.amount)}</td>
+            <td>${w.bank}</td>
+            <td><span class="badge badge-${w.status==='approved'?'green':w.status==='rejected'?'red':'gold'}">${w.status}</span></td>
+          </tr>`).join('')}
+        </tbody></table>`}
       </div>
     `;
   }
 
-  else if (page === 'announcements') {
-    main.innerHTML = `
-      <div class="page-header"><h2>Announcements</h2><p>Messages from CapitalX</p></div>
-      ${!(db.announcements?.length) ? '<div class="table-card"><div class="empty"><div class="empty-icon">📢</div>No announcements yet.</div></div>' : 
-      (db.announcements||[]).map(a => `
-        <div class="table-card" style="padding:24px;margin-bottom:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+  else if(page==='announcements'){
+    main.innerHTML=`
+      <div class="page-header"><div class="page-header-left"><h2>Announcements</h2><p>Messages from CapitalX</p></div></div>
+      ${!(db.announcements?.length)?'<div class="table-card"><div class="empty"><div class="empty-icon">📢</div>No announcements yet.</div></div>':
+      db.announcements.map(a=>`
+        <div class="table-card" style="padding:22px;margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
             <h3>${a.title}</h3>
-            <span style="color:var(--muted);font-size:0.75rem">${fmtDate(a.date)}</span>
+            <span class="text-muted" style="font-size:0.74rem">${fmtDate(a.date)}</span>
           </div>
-          <p style="color:var(--muted);margin-top:10px;line-height:1.6">${a.message}</p>
+          <p class="text-muted" style="margin-top:10px;line-height:1.65;font-size:0.87rem">${a.message}</p>
         </div>`).join('')}
     `;
   }
 }
 
-async function submitDeposit() {
-  const amount = parseFloat(document.getElementById('dep-amount').value);
-  const method = document.getElementById('dep-method').value;
-  const reference = document.getElementById('dep-ref').value.trim();
-
-  if (!amount || amount < 100) { toast('Minimum deposit is R 100.', 'error'); return; }
-
-  const dep = { id: 'd_'+Date.now(), amount, method, reference, date: new Date().toISOString(), status: 'pending' };
-  if (!db.clients[currentUser.id].deposits) db.clients[currentUser.id].deposits = [];
+// ===== CLIENT ACTIONS =====
+async function submitDeposit(){
+  const amount=parseFloat(document.getElementById('dep-amount').value);
+  const method=document.getElementById('dep-method').value;
+  const reference=document.getElementById('dep-ref').value.trim();
+  if(!amount||amount<100){toast('Minimum deposit is R 100.','error');return;}
+  const dep={id:'d_'+Date.now(),amount,method,reference,date:new Date().toISOString(),status:'pending'};
+  if(!db.clients[currentUser.id].deposits) db.clients[currentUser.id].deposits=[];
   db.clients[currentUser.id].deposits.push(dep);
-
+  if(!db.clients[currentUser.id].activityLog) db.clients[currentUser.id].activityLog=[];
+  db.clients[currentUser.id].activityLog.unshift({action:`Deposit request: R ${fmtNum(amount)} via ${method}`,date:new Date().toISOString()});
   await saveDB();
-  toast('Deposit request submitted! Awaiting admin approval.', 'success');
+  toast('Deposit submitted! Awaiting approval.','success');
   clientPage('deposit');
 }
 
-async function submitWithdrawal() {
-  const client = db.clients[currentUser.id];
-  const amount = parseFloat(document.getElementById('with-amount').value);
-  const bank = document.getElementById('with-bank').value;
-  const accountNo = document.getElementById('with-accno').value.trim();
-  const branchCode = document.getElementById('with-branch').value.trim();
+async function submitWithdrawal(){
+  const client=db.clients[currentUser.id];
+  const amount=parseFloat(document.getElementById('with-amount').value);
+  const bank=document.getElementById('with-bank').value;
+  const accountNo=document.getElementById('with-accno').value.trim();
+  const branchCode=document.getElementById('with-branch').value.trim();
+  const pin=document.getElementById('with-pin').value;
+  const minW=db.settings?.minWithdrawal||100;
+  const maxW=db.settings?.maxWithdrawal||500000;
 
-  if (!amount || amount <= 0) { toast('Enter a valid amount.', 'error'); return; }
-  if (amount > (client.balance||0)) { toast('Insufficient balance.', 'error'); return; }
-  if (!accountNo) { toast('Account number required.', 'error'); return; }
+  if(!amount||amount<=0){toast('Enter a valid amount.','error');return;}
+  if(amount<minW){toast(`Minimum withdrawal is R ${fmtNum(minW)}.`,'error');return;}
+  if(amount>maxW){toast(`Maximum withdrawal is R ${fmtNum(maxW)}.`,'error');return;}
+  if(amount>(client.balance||0)){toast('Insufficient balance.','error');return;}
+  if(!accountNo){toast('Account number required.','error');return;}
+  if(client.withdrawalPin&&pin!==client.withdrawalPin){toast('Incorrect withdrawal PIN.','error');return;}
+  if(!client.withdrawalPin){toast('Please set a withdrawal PIN first.','error');showSetPinModal();return;}
 
-  const w = { id: 'w_'+Date.now(), amount, bank, accountNo, branchCode, date: new Date().toISOString(), status: 'pending' };
-  if (!db.clients[currentUser.id].withdrawals) db.clients[currentUser.id].withdrawals = [];
+  const w={id:'w_'+Date.now(),amount,bank,accountNo,branchCode,date:new Date().toISOString(),status:'pending'};
+  if(!db.clients[currentUser.id].withdrawals) db.clients[currentUser.id].withdrawals=[];
   db.clients[currentUser.id].withdrawals.push(w);
-
+  if(!db.clients[currentUser.id].activityLog) db.clients[currentUser.id].activityLog=[];
+  db.clients[currentUser.id].activityLog.unshift({action:`Withdrawal request: R ${fmtNum(amount)} to ${bank}`,date:new Date().toISOString()});
   await saveDB();
-  toast('Withdrawal request submitted! Awaiting admin approval.', 'success');
+  toast('Withdrawal submitted! Awaiting approval.','success');
   clientPage('withdraw');
 }
 
+function showSetPinModal(){
+  let pinValue='';
+  document.getElementById('modal-content').innerHTML=`
+    <h3 style="text-align:center">🔑 Set Withdrawal PIN</h3>
+    <p class="text-muted" style="text-align:center;font-size:0.84rem;margin-bottom:20px">Choose a 4-digit PIN to secure your withdrawals</p>
+    <div class="pin-display" id="pin-display">
+      <div class="pin-dot" id="pd-0"></div>
+      <div class="pin-dot" id="pd-1"></div>
+      <div class="pin-dot" id="pd-2"></div>
+      <div class="pin-dot" id="pd-3"></div>
+    </div>
+    <div class="pin-pad">
+      ${[1,2,3,4,5,6,7,8,9,'','0','⌫'].map(k=>`<button class="pin-btn" onclick="pinInput('${k}')">${k}</button>`).join('')}
+    </div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    </div>
+  `;
+  window._pinValue='';
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function pinInput(key){
+  if(key==='') return;
+  if(key==='⌫'){
+    window._pinValue=(window._pinValue||'').slice(0,-1);
+  }else{
+    if((window._pinValue||'').length>=4) return;
+    window._pinValue=(window._pinValue||'')+key;
+  }
+  for(let i=0;i<4;i++){
+    const dot=document.getElementById(`pd-${i}`);
+    if(dot) dot.classList.toggle('filled',i<(window._pinValue||'').length);
+  }
+  if((window._pinValue||'').length===4){
+    setTimeout(()=>confirmPin(window._pinValue),200);
+  }
+}
+
+async function confirmPin(pin){
+  db.clients[currentUser.id].withdrawalPin=pin;
+  if(!db.clients[currentUser.id].activityLog) db.clients[currentUser.id].activityLog=[];
+  db.clients[currentUser.id].activityLog.unshift({action:'Withdrawal PIN updated',date:new Date().toISOString()});
+  await saveDB();
+  closeModal();
+  toast('Withdrawal PIN set successfully!','success');
+  clientPage('withdraw');
+}
+
+function downloadPDF(){
+  const client=db.clients[currentUser.id];
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+
+  // Header
+  doc.setFillColor(201,168,76);
+  doc.rect(0,0,210,28,'F');
+  doc.setTextColor(0,0,0);
+  doc.setFontSize(18);doc.setFont('helvetica','bold');
+  doc.text('CAPITALX',14,12);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');
+  doc.text('SA Broker Platform · FSCA Regulated · South Africa',14,19);
+  doc.setFontSize(11);doc.setFont('helvetica','bold');
+  doc.text('ACCOUNT STATEMENT',210-14,19,{align:'right'});
+
+  // Account info
+  doc.setTextColor(0,0,0);
+  doc.setFontSize(10);doc.setFont('helvetica','normal');
+  doc.text(`Account Holder: ${client.name}`,14,38);
+  doc.text(`Username: ${client.username}`,14,45);
+  doc.text(`Statement Date: ${fmtDate(new Date().toISOString())}`,14,52);
+  doc.text(`Current Balance: R ${fmtNum(client.balance||0)}`,14,59);
+
+  // Table
+  const allTx=[];
+  (client.deposits||[]).filter(d=>d.status==='approved').forEach(d=>allTx.push({date:fmtDate(d.date),type:'Deposit',method:d.method,credit:`R ${fmtNum(d.amount)}`,debit:'-'}));
+  (client.withdrawals||[]).filter(w=>w.status==='approved').forEach(w=>allTx.push({date:fmtDate(w.date),type:'Withdrawal',method:w.bank,credit:'-',debit:`R ${fmtNum(w.amount)}`}));
+  allTx.sort((a,b)=>new Date(a.date)-new Date(b.date));
+
+  if(allTx.length>0){
+    doc.setFillColor(30,30,40);
+    doc.rect(14,68,182,7,'F');
+    doc.setTextColor(200,200,200);
+    doc.setFontSize(8);doc.setFont('helvetica','bold');
+    ['Date','Type','Method','Credit','Debit'].forEach((h,i)=>doc.text(h,14+[0,30,65,120,155][i],73));
+
+    doc.setFont('helvetica','normal');
+    allTx.forEach((r,i)=>{
+      const y=80+i*8;
+      if(i%2===0){doc.setFillColor(245,245,245);doc.rect(14,y-4,182,8,'F');}
+      doc.setTextColor(0,0,0);
+      [r.date,r.type,r.method,r.credit,r.debit].forEach((v,j)=>doc.text(String(v),14+[0,30,65,120,155][j],y));
+    });
+  }else{
+    doc.setTextColor(150,150,150);doc.setFontSize(10);
+    doc.text('No transactions yet.',14,80);
+  }
+
+  // Footer
+  doc.setFillColor(240,240,240);doc.rect(0,285,210,12,'F');
+  doc.setTextColor(120,120,120);doc.setFontSize(7);
+  doc.text('This statement is generated by CapitalX Broker Platform. FSCA Regulated · South Africa',105,292,{align:'center'});
+
+  doc.save(`CapitalX_Statement_${client.name.replace(/\s/g,'_')}.pdf`);
+  toast('Statement downloaded!','success');
+}
+
 // ===== UTILITIES =====
-function closeModal() { document.getElementById('modal-overlay').classList.remove('show'); }
-document.getElementById('modal-overlay').onclick = (e) => { if (e.target === document.getElementById('modal-overlay')) closeModal(); };
+function closeModal(){document.getElementById('modal-overlay').classList.remove('show');}
+document.getElementById('modal-overlay').onclick=(e)=>{if(e.target===document.getElementById('modal-overlay'))closeModal();};
 
-function fmtNum(n) {
-  return Number(n||0).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-function fmtDate(d) {
-  return new Date(d).toLocaleDateString('en-ZA', { day:'2-digit', month:'short', year:'numeric' });
-}
+function fmtNum(n){return Number(n||0).toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtDate(d){return new Date(d).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'});}
+function fmtDateTime(d){return new Date(d).toLocaleString('en-ZA',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
 
-function toast(msg, type='success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `show ${type}`;
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className=`show ${type}`;
   clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(() => { t.className = ''; }, 3500);
+  window._toastTimer=setTimeout(()=>{t.className='';},3500);
 }
 </script>
 </body>
