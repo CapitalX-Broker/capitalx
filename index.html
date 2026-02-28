@@ -236,21 +236,50 @@ label{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bot
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" style="position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <div style="width:100%;max-width:420px;padding:24px;">
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="font-size:36px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;">Capital<span style="-webkit-text-fill-color:var(--text);opacity:.5;">X</span></div>
+      <div style="font-size:13px;color:var(--muted);font-family:var(--mono);">SA Broker Platform · FSCA Regulated</div>
+    </div>
+
+    <!-- Login Card -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;">
+      <div style="font-size:18px;font-weight:800;margin-bottom:4px;" id="loginTitle">Welcome Back</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:24px;font-family:var(--mono);" id="loginSub">Sign in to your account</div>
+
+      <div id="loginError" style="display:none;background:rgba(255,61,90,0.1);border:1px solid rgba(255,61,90,0.25);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:16px;">
+        ❌ Invalid username or password
+      </div>
+
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="loginUsername" placeholder="Enter your username" autocomplete="off"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div style="position:relative;">
+          <input type="password" id="loginPassword" placeholder="Enter your password" style="padding-right:40px;" onkeydown="if(event.key==='Enter')doLogin()"/>
+          <span onclick="togglePwd()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);font-size:14px;" id="pwdToggleIcon">👁</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;margin-top:8px;padding:12px;" onclick="doLogin()">Sign In →</button>
+
+      <div style="text-align:center;margin-top:16px;font-size:12px;color:var(--muted);">
+        🔒 Secured by CapitalX · South Africa
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- TOPBAR -->
-<div class="topbar">
+<div class="topbar" id="mainTopbar" style="display:none;">
   <div class="logo">Capital<span>X</span></div>
   <div class="ticker-wrap">
     <div class="ticker-inner" id="tickerInner"></div>
-  </div>
-  <div class="view-toggle">
-    <button class="active" onclick="switchView('admin')">⚙ Admin</button>
-    <button onclick="switchView('client')">👤 Client</button>
-  </div>
-  <div class="topbar-right">
-    <div class="notif-btn" onclick="showToast('You have 3 pending approvals','info')">
-      🔔<span class="notif-dot"></span>
-    </div>
-    <div class="avatar" id="topAvatar">AD</div>
   </div>
 </div>
 
@@ -269,7 +298,7 @@ label{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bot
   </div>
 </div>
 
-<div class="layout">
+<div class="layout" id="mainLayout" style="display:none;">
 
 <!-- ============================================================ ADMIN SIDEBAR -->
 <div class="sidebar" id="adminSidebar">
@@ -944,30 +973,7 @@ function openModal(title, bodyHTML, footerHTML='') {
 function closeModal(e){ if(e.target===document.getElementById('modalOverlay')) closeModalDirect(); }
 function closeModalDirect(){ document.getElementById('modalOverlay').classList.remove('open'); }
 
-// ============================================================
-// VIEW SWITCH
-// ============================================================
-function switchView(v) {
-  state.view = v;
-  const btns = document.querySelectorAll('.view-toggle button');
-  btns[0].classList.toggle('active', v==='admin');
-  btns[1].classList.toggle('active', v==='client');
-  document.getElementById('adminSidebar').style.display = v==='admin'?'flex':'none';
-  document.getElementById('clientSidebar').style.display = v==='client'?'flex':'none';
-  document.getElementById('topAvatar').textContent = v==='admin'?'AD':'TM';
-
-  // Show correct default page
-  hideAllPages();
-  if(v==='admin') {
-    document.getElementById('page-dashboard').classList.add('active');
-    highlightNav('#adminSidebar .nav-item:first-of-type');
-    renderDashboard();
-  } else {
-    document.getElementById('page-c-overview').classList.add('active');
-    highlightNav('#clientSidebar .nav-item:first-of-type');
-    renderClientOverview();
-  }
-}
+// switchView removed — replaced by login system
 
 function hideAllPages(){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1708,11 +1714,119 @@ function submitWithdrawal() {
 }
 
 // ============================================================
-// INIT
+// AUTH SYSTEM
 // ============================================================
-renderTicker();
-renderDashboard();
-updateBadges();
+const ADMIN_CREDENTIALS = { username: 'CapitalXadmin', password: 'infinix2006' };
+
+// Each client gets a default password = first name lowercase + last 4 digits of their id
+// We give them explicit passwords here
+const clientCredentials = [
+  { id:1, username:'thabo.molefe',   password:'thabo2024' },
+  { id:2, username:'zanele.dlamini', password:'zanele2024' },
+  { id:3, username:'sipho.nkosi',    password:'sipho2024' },
+  { id:4, username:'amahle.khumalo', password:'amahle2024' },
+  { id:5, username:'lebo.sithole',   password:'lebo2024' },
+  { id:6, username:'nadia.vanwyk',   password:'nadia2024' },
+];
+
+let currentSession = null; // { role: 'admin' | 'client', clientId: null | number }
+
+function doLogin() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  document.getElementById('loginError').style.display = 'none';
+
+  // Check admin
+  if(username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+    currentSession = { role: 'admin', clientId: null };
+    launchApp('admin');
+    return;
+  }
+
+  // Check clients
+  const clientCred = clientCredentials.find(c => c.username === username && c.password === password);
+  if(clientCred) {
+    const client = state.clients.find(c => c.id === clientCred.id);
+    if(client && client.status === 'suspended') {
+      document.getElementById('loginError').innerHTML = '⚠️ Your account is suspended. Contact support.';
+      document.getElementById('loginError').style.display = 'block';
+      return;
+    }
+    currentSession = { role: 'client', clientId: clientCred.id };
+    activeClientId = clientCred.id;
+    launchApp('client');
+    return;
+  }
+
+  // Failed
+  document.getElementById('loginError').style.display = 'block';
+}
+
+function launchApp(role) {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainTopbar').style.display = 'flex';
+  document.getElementById('mainLayout').style.display = 'flex';
+
+  if(role === 'admin') {
+    // Show admin topbar content
+    document.getElementById('mainTopbar').innerHTML = `
+      <div class="logo">Capital<span>X</span></div>
+      <div class="ticker-wrap"><div class="ticker-inner" id="tickerInner"></div></div>
+      <div style="display:flex;align-items:center;gap:8px;background:rgba(255,61,90,0.1);border:1px solid rgba(255,61,90,0.2);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--red);flex-shrink:0;">
+        🔐 ADMIN
+      </div>
+      <div class="topbar-right" style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
+        <div class="notif-btn" onclick="showToast('3 pending approvals','info')">🔔<span class="notif-dot"></span></div>
+        <div class="avatar" style="cursor:pointer;" onclick="logout()">AD</div>
+      </div>
+    `;
+    document.getElementById('adminSidebar').style.display = 'flex';
+    document.getElementById('clientSidebar').style.display = 'none';
+    hideAllPages();
+    document.getElementById('page-dashboard').classList.add('active');
+    renderTicker();
+    renderDashboard();
+    updateBadges();
+  } else {
+    const c = state.clients.find(x => x.id === activeClientId);
+    document.getElementById('mainTopbar').innerHTML = `
+      <div class="logo">Capital<span>X</span></div>
+      <div class="ticker-wrap"><div class="ticker-inner" id="tickerInner"></div></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+        <div class="notif-btn">🔔</div>
+        <div class="avatar" style="background:linear-gradient(135deg,${c.color},${c.color}88);cursor:pointer;" onclick="logout()">${c.initials}</div>
+      </div>
+    `;
+    document.getElementById('adminSidebar').style.display = 'none';
+    document.getElementById('clientSidebar').style.display = 'flex';
+    hideAllPages();
+    document.getElementById('page-c-overview').classList.add('active');
+    renderTicker();
+    renderClientOverview();
+  }
+}
+
+function logout() {
+  currentSession = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('mainTopbar').style.display = 'none';
+  document.getElementById('mainLayout').style.display = 'none';
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginError').style.display = 'none';
+}
+
+function togglePwd() {
+  const inp = document.getElementById('loginPassword');
+  const icon = document.getElementById('pwdToggleIcon');
+  if(inp.type === 'password') { inp.type = 'text'; icon.textContent = '🙈'; }
+  else { inp.type = 'password'; icon.textContent = '👁'; }
+}
+
+// ============================================================
+// INIT — show login screen only
+// ============================================================
+// Nothing auto-loads, login screen is shown by default
 </script>
 </body>
 </html>
